@@ -36,80 +36,83 @@ public class CategoryController {
         // 1. 카테고리 불러오기
         List<Category> categoryList = categoryService.getCostcoCategoryList();
         // 2. 크롤링 데이터와 대조할 DB 데이터 가져오기
-        Map<Object, CostcoProduct> existingCostcoProductMap = costcoProductService.getAllCostcoProductMap();
-        Set<Object> existingCostcoProductCodeSet = existingCostcoProductMap.keySet();
-        Set<Object> crawledCostcoProductCodeSet = new HashSet<>();
+        Map<Object, CostcoProduct> costcoProductMap = costcoProductService.getAllCostcoProductMap();
+        Set<Object> costcoProductCodeSet = costcoProductMap.keySet();
+        Set<Integer> updatingCostcoProductCodeSet = new HashSet<>();
+        Set<Integer> insertingCostcoProductCodeSet = new HashSet<>();
 
         crawlService.create();
         categoryList.forEach(category -> {
             CategoryInfo categoryInfo = new CategoryInfo(category.getIdx(), category.getCategory());
             Set<CostcoProduct> newCostcoProductSet = new HashSet<>();
+
+            // 3. 카테고리 selenium 으로 크롤링
             for (String pageParam : pageParams) {
                 categoryInfo.setUrl(pageParam);
-                // 3. 카테고리 selenium 으로 크롤링
                 try {
                     newCostcoProductSet.addAll(crawlService.crawlFromCategory(categoryInfo));
                 } catch (Exception e) {
                     throw e;
                 }
 
-                // 4. 크롤링 데이터와 oldCostcoProductMap 과 대조
-                if (!newCostcoProductSet.isEmpty()) {
-                    newCostcoProductSet.forEach((newCostcoProduct) -> {
-                        // TODO: check newCostcoProduct exists among oldCostcoProductMap and check whether it needs UPDATE or INSERT
-                        Integer newProductCode = newCostcoProduct.getProductCode();
-                        if (existingCostcoProductCodeSet.contains(newProductCode)) {
-                            // product code already exists in oldCostcoProductMap
-                            CostcoProduct existingCostcoProduct = existingCostcoProductMap.get(newProductCode);
-                            // if update is needed, replace oldCostcoProductMap with newCostcoProduct
-                            if (existingCostcoProduct.isRequiredUpdate(newCostcoProduct)) {
-                                existingCostcoProductMap.replace(newProductCode, newCostcoProduct);
-                            } else {
-                                // else, update crawlDateTime only
-                                existingCostcoProduct.setCrawlDateTime(commonService.getCurrentTimestamp());
-                                existingCostcoProductMap.replace(newProductCode, existingCostcoProduct);
-                            }
-                            // 이후, 크롤링 되지 않은 상품의 집합을 구하기 위해 업데이트 된 상품 코드를 추가
-                            crawledCostcoProductCodeSet.add(newProductCode);
-                        } else {
-                            // insert is needed
-                            costcoProductService.insertCostcoProduct(newCostcoProduct);
-                            // existingCostcoProductMap, existingCostcoProductCodeSet 에 newCostcoProduct 추가
-                            existingCostcoProductMap.put(newProductCode, newCostcoProduct);
-                            existingCostcoProductCodeSet.add(newProductCode);
-                        }
-                    });
-                }
                 // 총 크롤링 된 상품의 갯수를 구하기 위한 부분
                 totalProductItems += categoryInfo.getProductItemCountPage();
                 if (categoryInfo.getProductItemCountPage() < 48) {
                     break;
                 }
             }
+
+            if (newCostcoProductSet.isEmpty()) {
+                return;
+            }
+
+            // 4. newCostcoProductSet 와 costcoProductMap 과 대조
+            newCostcoProductSet.forEach((newCostcoProduct) -> {
+                // TODO: check newCostcoProduct exists among costcoProductMap and check whether it needs UPDATE or INSERT
+                Integer newProductCode = newCostcoProduct.getProductCode();
+                if (costcoProductCodeSet.contains(newProductCode)) {
+                    // product code already exists in costcoProductMap
+                    CostcoProduct existingCostcoProduct = costcoProductMap.get(newProductCode);
+                    // if update is needed, replace costcoProductMap with newCostcoProduct
+                    if (existingCostcoProduct.isRequiredUpdate(newCostcoProduct)) {
+                        costcoProductMap.replace(newProductCode, newCostcoProduct);
+                    } else {
+                        // else, update crawlDateTime only
+                        existingCostcoProduct.setCrawlDateTime(commonService.getCurrentTimestamp());
+                        costcoProductMap.replace(newProductCode, existingCostcoProduct);
+                    }
+                    // 이후, 크롤링 되지 않은 상품의 집합을 구하기 위해 업데이트 된 상품 코드를 추가
+                    updatingCostcoProductCodeSet.add(newProductCode);
+                } else {
+                    // insert is needed
+                    insertingCostcoProductCodeSet.add(newProductCode);
+                    // costcoProductMap, costcoProductCodeSet 에 newCostcoProduct 추가
+                    costcoProductMap.put(newProductCode, newCostcoProduct);
+                    costcoProductCodeSet.add(newProductCode);
+                }
+            });
         });
+
         // TODO: existingCostcoProductCodeSet crawledCostcoProductCodeSet 이용하여
-        //  crawledCostcoProductCodeSet 에 포함된 부분은 업데이트 진행하고,
-        //  existingCostcoProductCodeSet 에서 crawledCostcoProductCodeSet 을 제외한 값은 status 를 0 으로 업데이트 하기
+        //  updatingCostcoProductCodeSet 에 포함된 부분은 update,
+        //  insertingCostcoProductCodeSet 에 포함된 부분은 insert,
+        //  이외의 경우에 status 가 1 인 경우 disable
+        costcoProductMap.forEach((k, v) -> {
+            if (updatingCostcoProductCodeSet.contains(k)) {
+                // update
+                costcoProductService.updateCostcoProduct(v);
+            } else if (insertingCostcoProductCodeSet.contains(k)) {
+                // insert
+                costcoProductService.insertCostcoProduct(v);
+            } else if (v.getStatus() == 1){
+                // disable costcoProduct
+                costcoProductService.updateCostcoProductStatus(k, 0);
+            }
+        });
 
-        // crawledCostcoProductCodeSet 에 포함된 부분은 업데이트 진행
-
-
-        // existingCostcoProductCodeSet 에서 crawledCostcoProductCodeSet 을 제외한 값은 status 를 0 으로 업데이트 하기
-        existingCostcoProductCodeSet.removeAll(crawledCostcoProductCodeSet);
-        costcoProductService.updateCostcoProductsStatus(existingCostcoProductCodeSet, 0);
         crawlService.quit();
         return "renewed costco_product count is : " + totalProductItems;
     }
-                /*
-                CostcoProduct existCostcoProduct = costcoProductDao.getCostcoProductByProductCode(costcoProduct.getProductCode());
-                if (Objects.isNull(existCostcoProduct)) {
-                    costcoProductDao.insertCostcoProduct(costcoProduct);
-                } else if (costcoProduct.isRequiredUpdate(existCostcoProduct)) {
-                    costcoProductDao.updateInfoByIdx(existCostcoProduct.getIdx(), costcoProduct);
-                } else {
-                    costcoProductDao.updateCrawlDateTimeByIdx(costcoProduct.getIdx(), commonService.getCurrentTime());
-                }
-                 */
 
     @GetMapping("/rename")
     public String renameCategory() {

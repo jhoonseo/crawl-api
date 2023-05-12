@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,10 +106,21 @@ public class CostcoProductDao {
                 .execute();
     }
 
+    public void updateCostcoProduct(CostcoProduct costcoProduct) {
+
+    }
+
     public void updateCostcoProductsStatus(Set<Object> costcoProductCodeSet, Integer status) {
         context.update(table("costco_product"))
                 .set(field("status"), status)
                 .where(field("product_code").in(costcoProductCodeSet))
+                .execute();
+    }
+
+    public void updateCostcoProductStatus(Object productCode, Integer status) {
+        context.update(table("costco_product"))
+                .set(field("status"), status)
+                .where(field("product_code").eq(productCode))
                 .execute();
     }
 

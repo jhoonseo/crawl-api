@@ -5,10 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,10 +36,17 @@ public class CostcoProductService {
         return costcoProductDao.getCostcoProductIdxByProductCode(productCode);
     }
 
+    public void updateCostcoProduct(CostcoProduct costcoProduct) {
+        costcoProductDao.updateCostcoProduct(costcoProduct);
+    }
+
     public void updateCostcoProductsStatus(Set<Object> costcoProductCodeSet, Integer status) {
         costcoProductDao.updateCostcoProductsStatus(costcoProductCodeSet, status);
     }
 
+    public void updateCostcoProductStatus(Object productCode, Integer status) {
+        costcoProductDao.updateCostcoProductStatus(productCode, status);
+    }
 
     public void insertCostcoProduct(CostcoProduct costcoProduct) {
         costcoProductDao.insertCostcoProduct(costcoProduct);
