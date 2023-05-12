@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,21 +92,42 @@ public class CostcoProductDao {
                 .execute();
     }
 
-    public void updateInfoByIdx(Integer idx, CostcoProduct costcoProduct) {
+    public void updateCostcoProductByIdx(Integer idx, CostcoProduct costcoProduct) {
         context.update(table("costco_product"))
                 .set(field("costco_category_idx"), costcoProduct.getCostcoCategoryIdx())
+                .set(field("name"), costcoProduct.getName())
+                .set(field("name_en"), costcoProduct.getNameEn())
                 .set(field("price"), costcoProduct.getPrice())
                 .set(field("sale_amount"), costcoProduct.getSaleAmount())
                 .set(field("sale_period"), costcoProduct.getSalePeriod())
                 .set(field("is_sale"), costcoProduct.getIsSale())
                 .set(field("is_option"), costcoProduct.getIsOption())
+                .set(field("is_member_only"), costcoProduct.getIsMemberOnly())
+                .set(field("min_qty"), costcoProduct.getMinQty())
+                .set(field("max_qty"), costcoProduct.getMaxQty())
                 .set(field("status"), costcoProduct.getStatus())
+                .set(field("crawl_date_time"), costcoProduct.getCrawlDateTime())
                 .where(field("idx").eq(idx))
                 .execute();
     }
 
     public void updateCostcoProduct(CostcoProduct costcoProduct) {
-
+        context.update(table("costco_product"))
+                .set(field("costco_category_idx"), costcoProduct.getCostcoCategoryIdx())
+                .set(field("name"), costcoProduct.getName())
+                .set(field("name_en"), costcoProduct.getNameEn())
+                .set(field("price"), costcoProduct.getPrice())
+                .set(field("sale_amount"), costcoProduct.getSaleAmount())
+                .set(field("sale_period"), costcoProduct.getSalePeriod())
+                .set(field("is_sale"), costcoProduct.getIsSale())
+                .set(field("is_option"), costcoProduct.getIsOption())
+                .set(field("is_member_only"), costcoProduct.getIsMemberOnly())
+                .set(field("min_qty"), costcoProduct.getMinQty())
+                .set(field("max_qty"), costcoProduct.getMaxQty())
+                .set(field("status"), costcoProduct.getStatus())
+                .set(field("crawl_date_time"), costcoProduct.getCrawlDateTime())
+                .where(field("product_code").eq(costcoProduct.getProductCode()))
+                .execute();
     }
 
     public void updateCostcoProductsStatus(Set<Object> costcoProductCodeSet, Integer status) {
