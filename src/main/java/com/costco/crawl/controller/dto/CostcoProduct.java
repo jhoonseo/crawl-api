@@ -25,7 +25,7 @@ public class CostcoProduct {
     private int maxQty = 0;
     private int status = 1;
     private int isMemberOnly = 0;
-    private Timestamp crawlDateTime;
+    private Timestamp updatedDateTime;
 
     private String productUrl;
     private static final Map<Character, Character> specialCharacterMap =

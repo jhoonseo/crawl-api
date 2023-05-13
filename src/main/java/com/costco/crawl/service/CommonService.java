@@ -19,6 +19,15 @@ public class CommonService {
                 return true;
     }
 
+    public Boolean checkTagFrom(String tagName, WebElement aFrom) {
+        try {
+            aFrom.findElement(By.tagName(tagName));
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+        return true;
+    }
+
     public String getCurrentTime() {
         long currentTimeMillis = System.currentTimeMillis();
         Timestamp timestamp = new Timestamp(currentTimeMillis);

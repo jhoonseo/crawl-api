@@ -20,6 +20,10 @@ public class CategoryService {
         return categoryDao.getCostcoCategoryList();
     }
 
+    public List<Category> getAllCostcoCategoryList() {
+        return categoryDao.getAllCostcoCategoryList();
+    }
+
     public int updateCostcoCategoryName(Category category) {
         if (category.getName() != null) {
             return categoryDao.updateCostcoCategoryName(category);

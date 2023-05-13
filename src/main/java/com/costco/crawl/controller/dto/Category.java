@@ -6,5 +6,5 @@ import lombok.Data;
 public class Category {
     private Integer idx;
     private String category;
-    private String name;
+    private String name = "";
 }

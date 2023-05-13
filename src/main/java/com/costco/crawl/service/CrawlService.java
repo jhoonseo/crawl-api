@@ -5,7 +5,6 @@ import com.costco.crawl.controller.dto.CategoryInfo;
 import com.costco.crawl.controller.dto.CostcoProduct;
 import com.costco.crawl.dao.CostcoProductDao;
 import lombok.RequiredArgsConstructor;
-import org.jooq.Null;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -83,19 +82,18 @@ public class CrawlService {
 
     public void crawlCategoryName(Category category) {
         driver.get("https://www.costco.co.kr/c/" + category.getCategory());
-        if (!waitUntilTitleBool("코스트코 코리아")) {
-            return;
-        }
-        if (!waitUntilVisibilityByClassBool("breadcrumb")) {
+        if (!(waitUntilTitleBool("코스트코 코리아") || !waitUntilVisibilityByClassBool("breadcrumb"))) {
             return;
         }
         List<WebElement> categories = driver.findElement(By.className("breadcrumb")).findElements(By.tagName("li"));
+        WebElement lastCategory = categories.get(categories.size() - 1);
+        if (commonService.checkTagFrom("a", lastCategory)) {
+            String lastCategoryTitle = categories.get(categories.size() - 1)
+                    .findElement(By.tagName("a"))
+                    .getAttribute("title");
 
-        String lastCategoryTitle = categories.get(categories.size() - 1)
-                .findElement(By.tagName("a"))
-                .getAttribute("title");
-
-        category.setName(lastCategoryTitle);
+            category.setName(lastCategoryTitle);
+        }
     }
 
     public Set<CostcoProduct> crawlFromCategory(CategoryInfo categoryInfo) {
@@ -121,6 +119,11 @@ public class CrawlService {
                             .findElement(By.className("lister-name"))
                             .getAttribute("href");
                     costcoProduct.setProductUrlAndProductCode(productUrl);
+
+                    // Early Morning Delivery 비활성화
+                    if (commonService.checkClassFrom("product-list-delivery", productItem)) {
+                        costcoProduct.setStatus(0);
+                    }
 
                     // 상품 가격 || 멤버 전용 상품 설정
                     if (commonService.checkClassFrom("product-price-amount", productItem)) {
@@ -180,7 +183,7 @@ public class CrawlService {
                     }
 
                     // 상품 크롤링 시간 입력
-                    costcoProduct.setCrawlDateTime(commonService.getCurrentTimestamp());
+                    costcoProduct.setUpdatedDateTime(commonService.getCurrentTimestamp());
 
                     costcoProductSet.add(costcoProduct);
                 });

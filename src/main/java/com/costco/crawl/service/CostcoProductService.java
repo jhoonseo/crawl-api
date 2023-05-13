@@ -20,8 +20,12 @@ public class CostcoProductService {
         }
     }
 
-    public Map<Object, CostcoProduct> getAllCostcoProductMap() {
+    public Map<Integer, CostcoProduct> getAllCostcoProductMap() {
         return costcoProductDao.getAllCostcoProductMap();
+    }
+
+    public List<Integer> getAllCostcoProductCodeList() {
+        return costcoProductDao.getAllCostcoProductCodeList();
     }
 
     public List<CostcoProduct> getCostcoProductListAfterDate(LocalDate crawlDate) {
@@ -40,8 +44,8 @@ public class CostcoProductService {
         costcoProductDao.updateCostcoProduct(costcoProduct);
     }
 
-    public void updateCostcoProductsStatus(Set<Object> costcoProductCodeSet, Integer status) {
-        costcoProductDao.updateCostcoProductsStatus(costcoProductCodeSet, status);
+    public void updateCostcoProductListStatus(List<Integer> costcoProductCodeSet, Integer status) {
+        costcoProductDao.updateCostcoProductListStatus(costcoProductCodeSet, status);
     }
 
     public void updateCostcoProductStatus(Object productCode, Integer status) {

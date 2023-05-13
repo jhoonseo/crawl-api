@@ -32,11 +32,18 @@ public class CategoryDao {
                 .fetchInto(Category.class);
     }
 
+    public List<Category> getAllCostcoCategoryList() {
+        return context
+                .select(field("idx"), field("category"))
+                .from("costco_category")
+                .fetchInto(Category.class);
+    }
+
+
     public int updateCostcoCategoryName(Category category) {
         return context.update(table("costco_category"))
                 .set(field("name"), category.getName())
                 .where(field("idx").eq(category.getIdx()))
-                .and((field("name").notEqual(category.getName())).or(field("name").isNull()))
                 .execute();
     }
 }
