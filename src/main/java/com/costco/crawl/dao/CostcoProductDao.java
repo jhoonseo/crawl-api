@@ -4,12 +4,16 @@ import com.costco.crawl.controller.dto.CostcoProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
+import org.jooq.InsertValuesStep14;
+import org.jooq.Record;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,6 +106,61 @@ public class CostcoProductDao {
                         costcoProduct.getMinQty(), costcoProduct.getMaxQty(),
                         costcoProduct.getStatus(), costcoProduct.getUpdatedDateTime())
                 .execute();
+    }
+
+    public void insertCostcoProductSet(Set<CostcoProduct> costcoProductSet) {
+        // Prepare the insert query
+        InsertValuesStep14<Record, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object> insertQuery = context
+                .insertInto(table("costco_product"))
+                .columns(
+                        field("product_code"),
+                        field("costco_category_idx"),
+                        field("name"),
+                        field("name_en"),
+                        field("price"),
+                        field("sale_amount"),
+                        field("sale_period"),
+                        field("is_sale"),
+                        field("is_option"),
+                        field("is_member_only"),
+                        field("min_qty"),
+                        field("max_qty"),
+                        field("status"),
+                        field("updated_date_time")
+                );
+
+        // Create a list of values to be inserted
+        List<InsertValuesStep14<Record,
+            Object, Object, Object, Object, Object,
+            Object, Object, Object, Object, Object,
+            Object, Object, Object, Object>> valuesList = new ArrayList<>();
+
+        // Add values for each CostcoProduct in the set
+        costcoProductSet.forEach(product -> {
+            InsertValuesStep14<Record,
+                Object, Object, Object, Object, Object,
+                Object, Object, Object, Object, Object,
+                Object, Object, Object, Object> values = insertQuery.values(
+                    product.getProductCode(),
+                    product.getCostcoCategoryIdx(),
+                    product.getName(),
+                    product.getNameEn(),
+                    product.getPrice(),
+                    product.getSaleAmount(),
+                    product.getSalePeriod(),
+                    product.getIsSale(),
+                    product.getIsOption(),
+                    product.getIsMemberOnly(),
+                    product.getMinQty(),
+                    product.getMaxQty(),
+                    product.getStatus(),
+                    product.getUpdatedDateTime()
+            );
+            valuesList.add(values);
+        });
+
+        // Execute the insert query
+        context.batch(valuesList).execute();
     }
 
     public void updateCostcoProductByIdx(Integer idx, CostcoProduct costcoProduct) {

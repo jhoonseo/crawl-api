@@ -36,7 +36,8 @@ public class CategoryController {
         // 2. 크롤링 데이터와 대조할 DB 데이터 가져오기
         List<Integer> dbCostcoProductCodeSet = costcoProductService.getAllCostcoProductCodeList();
         Set<Integer> updatedCostcoProductCodeSet = new HashSet<>();
-        Set<Integer> insertedCostcoProductCodeSet = new HashSet<>();
+        Set<Integer> insertCostcoProductCodeSet = new HashSet<>();
+        Set<CostcoProduct> insertCostcoProductSet = new HashSet<>();
 
         crawlService.create();
         categoryList.forEach(category -> {
@@ -68,26 +69,30 @@ public class CategoryController {
                 Integer crawledProductCode = crawledCostcoProduct.getProductCode();
                 // already in db
                 if (dbCostcoProductCodeSet.contains(crawledProductCode)) {
-                    if (updatedCostcoProductCodeSet.contains(crawledProductCode) || insertedCostcoProductCodeSet.contains(crawledProductCode)) {
+                    if (updatedCostcoProductCodeSet.contains(crawledProductCode) || insertCostcoProductCodeSet.contains(crawledProductCode)) {
                         return;
                     }
                     // update 진행
                     costcoProductService.updateCostcoProduct(crawledCostcoProduct);
-                    // updatedSet 에 추가
+                    // updatedCodeSet 에 추가
                     updatedCostcoProductCodeSet.add(crawledProductCode);
                 } else {
-                    // insert 진행
-                    costcoProductService.insertCostcoProduct(crawledCostcoProduct);
-                    // dbSet && insertedSet 에 추가
+                    // costcoProductService.insertCostcoProduct(crawledCostcoProduct); // 방법1
+                    // insertSet 에 추가
+                    insertCostcoProductSet.add(crawledCostcoProduct); // 방법2
+                    // dbCodeSet && insertCodeSet 에 추가
                     dbCostcoProductCodeSet.add(crawledProductCode);
-                    insertedCostcoProductCodeSet.add(crawledProductCode);
+                    insertCostcoProductCodeSet.add(crawledProductCode);
                 }
             });
         });
 
-        // dbSet - (updatedSet + insertingSet) 은 disable
+        // insert 일괄 진행
+        costcoProductService.insertCostcoProductSet(insertCostcoProductSet); // 방법2
+
+        // dbSet - (updatedSet + insertingSet) 은 disable (품절 상품은 카테고리에서 노출되지 않아, dbSet 에만 존재)
         dbCostcoProductCodeSet.removeAll(updatedCostcoProductCodeSet);
-        dbCostcoProductCodeSet.removeAll(insertedCostcoProductCodeSet);
+        dbCostcoProductCodeSet.removeAll(insertCostcoProductCodeSet);
         // disable 진행
         costcoProductService.updateCostcoProductListStatus(dbCostcoProductCodeSet, 0);
 

@@ -34,10 +34,6 @@ public class CostcoProduct {
                     ',', '-'
             );
     public void setNames(String name, String nameEn) {
-        Map<Character, Character> specialCharacterMap = new HashMap<>();
-        specialCharacterMap.put('&', '+');
-        specialCharacterMap.put(',', '-');
-
         for (Map.Entry<Character, Character> entry : specialCharacterMap.entrySet()) {
             this.name = name.replace(entry.getKey(), entry.getValue());
             this.nameEn = nameEn.replace(entry.getKey(), entry.getValue());

@@ -1,16 +1,20 @@
 package com.costco.crawl.service;
+import com.costco.crawl.controller.dto.C24CostcoProduct;
 import com.costco.crawl.controller.dto.CostcoProduct;
+import com.costco.crawl.dao.C24ProductDao;
 import com.costco.crawl.dao.CostcoProductDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class CostcoProductService {
     private final CostcoProductDao costcoProductDao;
+    private final C24ProductDao c24ProductDao;
 
     public LocalDate checkParams(LocalDate crawlDate) {
         if (Objects.isNull(crawlDate)) {
@@ -54,6 +58,10 @@ public class CostcoProductService {
 
     public void insertCostcoProduct(CostcoProduct costcoProduct) {
         costcoProductDao.insertCostcoProduct(costcoProduct);
+    }
+
+    public void insertCostcoProductSet(Set<CostcoProduct> costcoProductSet) {
+        costcoProductDao.insertCostcoProductSet(costcoProductSet);
     }
 
 }
