@@ -41,14 +41,6 @@ public class C24CostcoProduct {
 
     private int c24Status = 1; // c24_product
 
-    // ----------- no db column -----------
-    private List<String> thumbExtraList;
-    // ----------- no db column -----------
-
-    public C24CostcoProduct(Integer productCode) {
-        this.productCode = productCode;
-    }
-
     public boolean checkForMustAttributes() {
         boolean isValid = true;
         if (cpIdx == 0

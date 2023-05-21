@@ -81,7 +81,7 @@ public class C24ProductDao {
                 .set(field("delivery_info"), c24P.getDeliveryInfo())
                 .set(field("refund_info"), c24P.getRefundInfo())
                 .set(field("status"), c24P.getC24Status()).where(
-                        field("product_code").eq(c24Group.getProductCode())
+                        field("costco_product_code").eq(c24Group.getProductCode())
                 ).execute();
     }
 

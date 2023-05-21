@@ -50,10 +50,11 @@ public class ProductController {
         newC24CostcoProductsSet.forEach(c24CostcoProduct -> {
 
             // 새 상품 crawl
-            crawlService.crawlProduct(c24CostcoProduct);
             try {
+                crawlService.crawlProduct(c24CostcoProduct);
                 c24ProductService.manageC24Code(c24Code);
             } catch (Exception e) {
+                crawlService.quit();
                 throw new RuntimeException(e);
             }
 
@@ -75,7 +76,7 @@ public class ProductController {
                 .filter(p -> p.getC24Idx() != 0)
                 .filter(p -> (!Objects.isNull(p.getC24Code()) && !p.getC24Code().isEmpty()))
                 .collect(Collectors.groupingBy(C24CostcoProduct::getProductCode));
-
+        c24CostcoProductList = null;
         existingC24CostcoProductsMap.forEach((productCode, c24List) -> {
             // 객체가 서로 일치하는지 && 객체에서 필수 정보가 빠진게 없는지 체크
             boolean isSameObjects = c24ProductService.checkForSameObjects(c24List);
@@ -87,7 +88,13 @@ public class ProductController {
 
                 c24Group.setProductCode(productCode);
                 // crawlService.crawlProduct here
-                C24CostcoProduct c24CostcoProduct = crawlService.crawlProduct(productCode);
+                C24CostcoProduct c24CostcoProduct;
+                try {
+                    c24CostcoProduct = crawlService.crawlProduct(productCode);
+                } catch (Exception e) {
+                    crawlService.quit();
+                    throw new RuntimeException(e);
+                }
                 c24Group.setCommonC24CostcoProduct(c24CostcoProduct);
 
                 // update with c24Group

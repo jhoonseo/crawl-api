@@ -9,22 +9,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/costco/crawl")
+@RequestMapping("/api/v1/costco/crawl/test")
 @Tag(name = "코스트코 크롤링")
 public class TestController {
     private final CategoryService categoryService;
     private final CostcoProductService costcoProductService;
-
 //    todo 배치잡 만들기
 
-    @GetMapping("/test")
-    public String test() {
-        return "Test String Returned";
+    @GetMapping("/cp")
+    public Map<Integer, CostcoProduct> test() {
+        return costcoProductService.getAllCostcoProductMap();
+
     }
+
+
 
     @GetMapping("/urlCategories")
     public List<String> categoryUrls() {

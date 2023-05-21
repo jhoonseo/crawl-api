@@ -105,7 +105,9 @@ public class CrawlService {
 
         if (!waitUntilTitleBool("코스트코 코리아")
                 || !waitUntilVisibilityByClassBool("breadcrumb-section")
-                || !waitUntilVisibilityByClassBool("d-block")) {
+                || !waitUntilVisibilityByClassBool("d-block")
+                || !waitUntilPageLoad()
+        ) {
             return costcoProductSet;
         }
 
@@ -195,7 +197,8 @@ public class CrawlService {
     }
 
     public C24CostcoProduct crawlProduct(Integer productCode) {
-        C24CostcoProduct c24CostcoProduct = new C24CostcoProduct(productCode);
+        C24CostcoProduct c24CostcoProduct = new C24CostcoProduct();
+        c24CostcoProduct.setProductCode(productCode);
         crawlProduct(c24CostcoProduct);
         return c24CostcoProduct;
     }
@@ -203,9 +206,11 @@ public class CrawlService {
     public void crawlProduct(C24CostcoProduct c24CostcoProduct) {
         driver.get(c24CostcoProduct.getProductUrl());
 
-        if (!(waitUntilTitleBool("코스트코 코리아")
-                || waitUntilVisibilityByClassBool("view-more__button")
-                || waitUntilVisibilityByClassBool("breadcrumb"))) {
+        if (!waitUntilTitleBool("코스트코 코리아")
+                || !waitUntilVisibilityByClassBool("view-more__button")
+                || !waitUntilVisibilityByClassBool("breadcrumb")
+                || !waitUntilPageLoad()
+            ) {
             return;
         }
 
@@ -371,6 +376,15 @@ public class CrawlService {
         }
     }
 
+    private boolean waitUntilPageLoad() {
+        try {
+            webDriverWait.until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
     public void create() {
         if (Objects.isNull(driver)) {
             System.setProperty(webDriverId, webDriverPath);
@@ -386,11 +400,4 @@ public class CrawlService {
             driver = null;
         }
     }
-
-
-
-
-
-
-
 }

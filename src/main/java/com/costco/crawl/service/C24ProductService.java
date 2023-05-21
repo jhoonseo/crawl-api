@@ -34,7 +34,6 @@ public class C24ProductService {
 
     public void updateStatusByIdxList(List<Integer> idxList, Integer status) {
         c24ProductDao.updateStatusByIdxList(idxList, status);
-
     }
 
     public void insertC24Product(C24CostcoProduct c24P) {
