@@ -19,6 +19,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 
@@ -27,7 +28,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CrawlService {
     private final CommonUtil commonUtil;
-    private final CostcoProductDao costcoProductDao;
 
     @Value("${web.driver.id:}")
     private String webDriverId;
@@ -232,14 +232,14 @@ public class CrawlService {
         return costcoProductSet;
     }
 
-    public C24CostcoProduct crawlProduct(Integer productCode, String formatToday) {
+    public C24CostcoProduct crawlProduct(Integer productCode, String formatToday) throws IOException {
         C24CostcoProduct c24CostcoProduct = new C24CostcoProduct();
         c24CostcoProduct.setProductCode(productCode);
         crawlProduct(c24CostcoProduct, formatToday);
         return c24CostcoProduct;
     }
 
-    public void crawlProduct(C24CostcoProduct c24CostcoProduct, String formatToday) {
+    public void crawlProduct(C24CostcoProduct c24CostcoProduct, String formatToday) throws IOException {
         log.debug(c24CostcoProduct.getProductUrl()); // TODO remove after test
         driver.get(c24CostcoProduct.getProductUrl());
 
@@ -369,7 +369,7 @@ public class CrawlService {
         );
     }
 
-    private void processThumbsAndGenerateThumbDetailInfo(C24CostcoProduct c24CostcoProduct, String formatToday) {
+    private void processThumbsAndGenerateThumbDetailInfo(C24CostcoProduct c24CostcoProduct, String formatToday) throws IOException {
         // setThumbDetail && setThumbExtraFilenames && setThumbMain && setThumbExtra
         // 적절한 이미지가 1개도 없는 경우 setC24Status(0)
         List<WebElement> thumbElementList = driver.findElement(By.className("image-panel")).findElements(By.className("thumb"));

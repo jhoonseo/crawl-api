@@ -1,12 +1,21 @@
-package com.costco.crawl.service;
+package com.costco.crawl.util;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 
-public class ImageUtils {
+@RequiredArgsConstructor
+@Slf4j
+@Service
+public class ImageUtil {
     public static boolean checkImgRgb(String route) {
         BufferedImage image = readImage(route);
         if (image == null) {
@@ -33,7 +42,7 @@ public class ImageUtils {
             if (isValidUrl(url)) {
                 image = ImageIO.read(new URL(url));
             } else {
-                image = ImageIO.read(Objects.requireNonNull(ImageUtils.class.getClassLoader().getResourceAsStream(url)));
+                image = ImageIO.read(Objects.requireNonNull(ImageUtil.class.getClassLoader().getResourceAsStream(url)));
             }
         } catch (IOException e) {
             return null;
@@ -63,4 +72,22 @@ public class ImageUtils {
         int b = rgb & 0xFF;
         return r == 255 && (g == 255 || b == 255);
     }
+
+    public void writeImage(BufferedImage image, String directory, String fileName) {
+        try {
+            ImageIO.write(image, "jpg", new File(directory, fileName));
+        } catch (Exception e) {
+            log.error("Error writing image to directory '{}': {}", directory, e.getMessage());
+        }
+    }
+
+    public BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
+        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics2D = resizedImage.createGraphics();
+        graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        graphics2D.drawImage(originalImage, 0, 0, targetWidth, targetHeight, null);
+        graphics2D.dispose();
+        return resizedImage;
+    }
+
 }

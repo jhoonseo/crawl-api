@@ -1,5 +1,6 @@
 package com.costco.crawl.util;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,21 +24,21 @@ import java.text.SimpleDateFormat;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class CommonUtil {
 
     @Value("${local.directory}")
     private String localDirectory;
 
-    @Value("${local.directory.images}")
-    private String localDirectoryImages;
+    @Value("${local.images.directory}")
+    private String localImagesDirectory;
 
-    @Value("${local.directory.daily}")
-    private String localDirectoryDaily;
+    @Value("${local.daily.directory}")
+    private String localDailyDirectory;
 
     public Boolean checkClassExist(String className, WebDriver driver) {
         try {
@@ -77,6 +79,10 @@ public class CommonUtil {
         return new Timestamp(currentTimeMillis);
     }
 
+    public boolean fileExists(String directory, String fileName) {
+        return Files.exists(Paths.get(directory, fileName));
+    }
+
     public boolean isNukkiImage(String imageUrl) {
         try {
             BufferedImage image = ImageIO.read(new URL(imageUrl));
@@ -107,42 +113,61 @@ public class CommonUtil {
         }
     }
 
-    public void generateDirectories(String formatToday) throws IOException {
-        String dailyToday = String.join("/", localDirectoryDaily, formatToday);
-        String dailyTodayImages = String.join("/", localDirectoryDaily, formatToday, "images");
-
-        createDirectory(localDirectory);
-        createDirectory(localDirectoryImages);
-        createDirectory(localDirectoryDaily);
-        createDirectory(dailyToday);
-        createDirectory(dailyTodayImages);
+    public void createDirectories(String... directories) throws IOException {
+        for (String directory : directories) {
+            Path path = Paths.get(directory);
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+        }
     }
 
-    public boolean isImageDownloaded(String imageUrl, String fileName, String formatToday) {
-        Path filePath = Path.of(localDirectoryImages, fileName);
+    public void generateDirectories(String formatToday) throws IOException {
+        String dailyToday = String.join("/", localDailyDirectory, formatToday);
+        String dailyTodayImages = String.join("/", localDailyDirectory, formatToday, "images");
+
+        createDirectories(localDirectory, localImagesDirectory, localDailyDirectory, localDailyDirectory, dailyToday, dailyTodayImages);
+    }
+
+    public boolean isImageDownloaded(String imageUrl, String fileName, String formatToday) throws IOException {
+        Path filePath = Path.of(localImagesDirectory, fileName);
         if (Files.exists(filePath)) {
             // 이미 파일이 존재하므로 다운로드 또는 복사하지 않고 넘어감
             return true;
         }
-
+        InputStream in;
         try {
-            Path dailyImagesPath = Path.of(String.join("/", localDirectoryDaily, formatToday, "images", fileName));
+            Path dailyImagesPath = Path.of(String.join("/", localDailyDirectory, formatToday, "images", fileName));
             URL url = new URL(imageUrl);
-            InputStream in = new BufferedInputStream(url.openStream());
+            in = new BufferedInputStream(url.openStream());
             Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
-
             in = new BufferedInputStream(url.openStream());
             Files.copy(in, dailyImagesPath, StandardCopyOption.REPLACE_EXISTING);
-
         } catch (Exception e) {
             return false;
         }
+        close(in); // ImageInputStream 제거
+
         return true;
     }
 
     private boolean isPixelWhite(int rgb) {
         Color color = new Color(rgb);
         return color.getRed() == 255 && color.getGreen() == 255 && color.getBlue() == 255;
+    }
+
+    public void close(ImageInputStream in) {
+        try {
+            in.close();
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void close(InputStream in) {
+        try {
+            in.close();
+        } catch (Exception ignored) {
+        }
     }
 
 }

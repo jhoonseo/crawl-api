@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/costco/crawl/product")
 @Tag(name = "코스트코 상품상세 크롤링")
 public class ProductController {
-    private final CategoryService categoryService;
     private final CostcoProductService costcoProductService;
     private final CrawlService crawlService;
     private final C24ProductService c24ProductService;
