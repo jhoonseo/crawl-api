@@ -7,7 +7,7 @@ import com.costco.crawl.controller.dto.CostcoProduct;
 import com.costco.crawl.dao.CostcoProductDao;
 import com.costco.crawl.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.*;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CrawlService {
@@ -62,6 +62,37 @@ public class CrawlService {
         );
     }
 
+    private boolean waitUntilPresenceOfAllByClass(String className) {
+        try {
+            webDriverWait.until(
+                    ExpectedConditions.presenceOfAllElementsLocatedBy(
+                            By.className(className)
+                    )
+            );
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean waitUntilPresenceOfNestedAllByClass(String className, By byChild) {
+        try {
+            List<WebElement> elements = webDriverWait.until(
+                    ExpectedConditions.presenceOfAllElementsLocatedBy(By.className(className))
+            );
+
+            for (WebElement element : elements) {
+                // 각 요소의 자식 요소가 로드될 때까지 대기
+                webDriverWait.until(
+                        ExpectedConditions.presenceOfAllElementsLocatedBy(byChild)
+                );
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
     private boolean waitUntilVisibilityByClassBool(String className) {
         try {
             webDriverWait.until(
@@ -88,7 +119,10 @@ public class CrawlService {
 
     public void crawlCategoryName(Category category) {
         driver.get("https://www.costco.co.kr/c/" + category.getCategory());
-        if (!(waitUntilTitleBool("코스트코 코리아") || !waitUntilVisibilityByClassBool("breadcrumb"))) {
+        if (!waitUntilTitleBool("코스트코 코리아")
+                || !waitUntilVisibilityByClassBool("breadcrumb")
+                || !waitUntilPageLoad()
+        ) {
             return;
         }
         List<WebElement> categories = driver.findElement(By.className("breadcrumb")).findElements(By.tagName("li"));
@@ -103,6 +137,8 @@ public class CrawlService {
         driver.get(categoryInfo.getUrl());
         Set<CostcoProduct> costcoProductSet = new HashSet<>();
 
+        // 로딩 대기를 위해 3초 중단
+        sleepMilliSec(3000);
         if (!waitUntilTitleBool("코스트코 코리아")
                 || !waitUntilVisibilityByClassBool("breadcrumb-section")
                 || !waitUntilVisibilityByClassBool("d-block")
@@ -196,26 +232,32 @@ public class CrawlService {
         return costcoProductSet;
     }
 
-    public C24CostcoProduct crawlProduct(Integer productCode) {
+    public C24CostcoProduct crawlProduct(Integer productCode, String formatToday) {
         C24CostcoProduct c24CostcoProduct = new C24CostcoProduct();
         c24CostcoProduct.setProductCode(productCode);
-        crawlProduct(c24CostcoProduct);
+        crawlProduct(c24CostcoProduct, formatToday);
         return c24CostcoProduct;
     }
 
-    public void crawlProduct(C24CostcoProduct c24CostcoProduct) {
+    public void crawlProduct(C24CostcoProduct c24CostcoProduct, String formatToday) {
+        log.debug(c24CostcoProduct.getProductUrl()); // TODO remove after test
         driver.get(c24CostcoProduct.getProductUrl());
 
+        // 로딩 대기를 위해 5초 중단
+        sleepMilliSec(5000);
+
         if (!waitUntilTitleBool("코스트코 코리아")
-                || !waitUntilVisibilityByClassBool("view-more__button")
-                || !waitUntilVisibilityByClassBool("breadcrumb")
                 || !waitUntilPageLoad()
+                || !waitUntilVisibilityByClassBool("image-panel")
+                || !waitUntilPresenceOfNestedAllByClass("thumb", By.tagName("picture"))
+                || !waitUntilPresenceOfNestedAllByClass("thumb", By.tagName("img"))
             ) {
+            c24CostcoProduct.setC24Status(0);
             return;
         }
 
         // ------------------- 썸네일 관련 -------------------
-        processThumbsAndGenerateThumbDetailInfo(c24CostcoProduct);
+        processThumbsAndGenerateThumbDetailInfo(c24CostcoProduct, formatToday);
 
         // 배송 및 환불정보에 img tag 가 있는 경우 깨지는 이슈 제거
         if (commonUtil.checkClassExist("product-delivery-refund", driver)) {
@@ -327,7 +369,7 @@ public class CrawlService {
         );
     }
 
-    private void processThumbsAndGenerateThumbDetailInfo(C24CostcoProduct c24CostcoProduct) {
+    private void processThumbsAndGenerateThumbDetailInfo(C24CostcoProduct c24CostcoProduct, String formatToday) {
         // setThumbDetail && setThumbExtraFilenames && setThumbMain && setThumbExtra
         // 적절한 이미지가 1개도 없는 경우 setC24Status(0)
         List<WebElement> thumbElementList = driver.findElement(By.className("image-panel")).findElements(By.className("thumb"));
@@ -336,19 +378,22 @@ public class CrawlService {
         List<String> thumbFilenameList = new ArrayList<>();
 
         for (WebElement thumb : thumbElementList) {
-            String url = null;
+            String url = null, fileName = null;
             if (commonUtil.checkTagFrom("picture", thumb)) {
                 WebElement picture = thumb.findElement(By.tagName("picture"));
                 if (commonUtil.checkTagFrom("img", picture)) {
                     url = picture.findElement(By.tagName("img")).getAttribute("src");
+                    fileName = url.split("/")[url.split("/").length - 1];
                 }
             }
 
             if (!Objects.isNull(url) && !url.isEmpty()
                     && !url.endsWith(".webp")
-                    && commonUtil.isNukkiImage(url)) {
+                    && commonUtil.isNukkiImage(url)
+                    && commonUtil.isImageDownloaded(url, fileName, formatToday)
+            ) {
                 thumbUrlList.add(url);
-                thumbFilenameList.add(url.split("/")[url.split("/").length - 1]);
+                thumbFilenameList.add(fileName);
             }
         }
 
@@ -359,7 +404,7 @@ public class CrawlService {
             for (int i = 0; i < thumbUrlList.size(); i++) {
                 String thumbUrl = thumbUrlList.get(i);
                 String thumbFilename = thumbUrl.split("/")[thumbUrl.split("/").length - 1];
-                String src = cdnBaseUrl + thumbFilename;
+                String src = String.join("/", cdnBaseUrl, thumbFilename);
                 thumbDetailInfo.append("<img src=").append(src)
                         .append(" alt=").append(c24CostcoProduct.getName())
                         .append(" style='width: 100%; margin-bottom:60px;' />\n ");
@@ -383,6 +428,14 @@ public class CrawlService {
             return false;
         }
         return true;
+    }
+
+    private void sleepMilliSec(Integer millis) {
+        try {
+            Thread.sleep(millis); // 5초 동안 일시 정지
+        } catch (InterruptedException e) {
+            log.error("Thread sleep interrupted", e);
+        }
     }
 
     public void create() {

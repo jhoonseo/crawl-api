@@ -59,7 +59,7 @@ public class C24ProductDao {
                 .fetchOneInto(String.class);
     }
     public List<Integer> getDisablingIdxList() {
-        return context.select(field("idx"))
+        return context.select(field("c24.idx"))
                 .from(table("c24_product_test").as("c24"))
                 .leftJoin(table("costco_product").as("cp"))
                 .on(field("c24.costco_product_code").eq("cp.product_code"))

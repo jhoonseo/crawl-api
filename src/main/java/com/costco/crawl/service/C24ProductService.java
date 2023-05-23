@@ -33,6 +33,9 @@ public class C24ProductService {
     }
 
     public void updateStatusByIdxList(List<Integer> idxList, Integer status) {
+        if (idxList.size() == 0) {
+            return;
+        }
         c24ProductDao.updateStatusByIdxList(idxList, status);
     }
 
