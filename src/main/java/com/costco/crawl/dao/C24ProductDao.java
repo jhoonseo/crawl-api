@@ -51,6 +51,38 @@ public class C24ProductDao {
                 .fetchInto(C24CostcoProduct.class);
     }
 
+    public List<C24CostcoProduct> getC24CostcoProductListForExcel() {
+        return context.select(
+                        field("cp.idx").as("cp_idx"),
+                        field("c24.idx").as("c24_idx"),
+                        field("product_code"),
+                        field("name"),
+                        field("name_en"),
+                        field("min_qty"),
+                        field("max_qty"),
+                        field("c24_code"),
+                        field("thumb_detail"),
+                        field("description_detail"),
+                        field("spec_info_table"),
+                        field("delivery_info"),
+                        field("refund_info"),
+                        field("thumb_main"),
+                        field("thumb_extra"),
+                        field("thumb_extra_filenames"),
+                        field("costco_category_idx"),
+                        field("price"),
+                        field("sale_amount"),
+                        field("sale_period"),
+                        field("is_sale"),
+                        field("is_option"),
+                        field("is_member_only"),
+                        field("c24.status").as("c24_status")
+                ).from(table("costco_product").as("cp"))
+                .leftJoin(table("c24_product_test").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                .where(field("cp.status").eq(1).and(field("c24.status").eq(1)))
+                .fetchInto(C24CostcoProduct.class);
+    }
+
     public String getLastC24Code() {
         return context.select(field("c24_code"))
                 .from(table("c24_product_test"))

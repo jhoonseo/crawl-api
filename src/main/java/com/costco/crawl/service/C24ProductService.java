@@ -28,6 +28,10 @@ public class C24ProductService {
         return c24ProductDao.getDisablingIdxList();
     }
 
+    public List<C24CostcoProduct> getC24CostcoProductListForExcel() {
+        return c24ProductDao.getC24CostcoProductListForExcel();
+    }
+
     public void updateC24Group(C24CostcoProductGroup c24Group) {
         c24ProductDao.updateC24Group(c24Group);
     }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -24,7 +25,10 @@ import java.text.SimpleDateFormat;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +85,12 @@ public class CommonUtil {
 
     public boolean fileExists(String directory, String fileName) {
         return Files.exists(Paths.get(directory, fileName));
+    }
+
+    public Set<File> getFilteredFileSet(File[] files) {
+        return Arrays.stream(files)
+                .filter(file -> file.isFile() && !file.isHidden() && !file.getName().startsWith("."))
+                .collect(Collectors.toSet());
     }
 
     public boolean isNukkiImage(String imageUrl) {
