@@ -1,4 +1,10 @@
 # Default ignored files
 /shelf/
 /workspace.xml
-/src/test/java/com/costco/crawl/*
+/src/test/java/com/project/crawl/*
+/build
+src/main/java/com/project/crawl/config/SchedulerConfig.java
+src/main/java/com/project/crawl/service/BatchService.java
+src/main/java/com/project/crawl/controller/TestController.java
+.gradle
+.idea
