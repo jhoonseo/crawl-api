@@ -48,6 +48,7 @@ public class C24ProductDao {
         ).from(table("costco_product").as("cp"))
                 .leftJoin(table("c24_product_test").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
                 .where(field("cp.status").eq(1))
+                .orderBy(field("product_code").asc())
                 .fetchInto(C24CostcoProduct.class);
     }
 
@@ -80,6 +81,7 @@ public class C24ProductDao {
                 ).from(table("costco_product").as("cp"))
                 .leftJoin(table("c24_product_test").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
                 .where(field("cp.status").eq(1).and(field("c24.status").eq(1)))
+                .orderBy(field("product_code").asc())
                 .fetchInto(C24CostcoProduct.class);
     }
 
@@ -98,6 +100,7 @@ public class C24ProductDao {
                 .where(
                         field("c24.status").eq(1)
                                 .and(field("cp.status").eq(0)))
+                .orderBy(field("product_code").asc())
                 .fetchInto(Integer.class);
     }
 

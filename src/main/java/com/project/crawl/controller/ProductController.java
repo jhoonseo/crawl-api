@@ -59,36 +59,6 @@ public class ProductController {
                 .filter(p -> p.getC24Idx() == 0)
                 .collect(Collectors.toSet());
 
-        // 새 상품 crawl && set new C24Code -> insert or disable
-        crawlService.setDriverProperty();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*");
-        WebDriver driver = new ChromeDriver(options);
-        WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
-        newC24CostcoProductsSet.forEach(c24CostcoProduct -> {
-
-            // 새 상품 crawl
-            try {
-                crawlService.crawlProduct(driver, webDriverWait, c24CostcoProduct, formatToday);
-                c24ProductService.manageC24Code(c24Code);
-            } catch (Exception e) {
-                crawlService.quit(driver);
-                throw new RuntimeException(e);
-            }
-
-            // set new C24Code
-            c24CostcoProduct.setC24Code(c24Code.getC24Code());
-
-            // c24_product 에 insert
-            c24ProductService.insertC24Product(c24CostcoProduct);
-
-            // c24CostcoProduct.getC24Code() == 0 인 경우, costco_product.status 를 0 으로 업데이트
-            if (c24CostcoProduct.getC24Status() == 0) {
-                costcoProductService.updateCostcoProductStatus(c24CostcoProduct.getProductCode(), 0);
-            }
-        });
-
         // 기존 상품
         // c24Idx 가 0이 아니고, c24Code 가 있는 c24CostcoProduct 를 productCode 로 grouping
         Map<Integer, List<C24CostcoProduct>> existingC24CostcoProductsMap = c24CostcoProductList.stream()
@@ -99,31 +69,50 @@ public class ProductController {
         // c24CostcoProductList 더 이상 사용하지 않으므로 초기화
         c24CostcoProductList = null;
 
-        existingC24CostcoProductsMap.forEach((productCode, c24List) -> {
-            // 객체가 서로 일치하는지 && 객체에서 필수 정보가 빠진게 없는지 체크
-            boolean isSameObjects = c24ProductService.checkForSameObjects(c24List);
-            boolean hasMustAttributes = c24List.get(0).checkForMustAttributes();
+        // WebDriver 설정
+        crawlService.setDriverProperty();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        WebDriver driver = new ChromeDriver(options);
+        WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-            // false 의 경우, List<c24_product.idx>, C24CostcoProduct 를 속성으로 가지는 클래스에 List<c24_product.idx> 를 셋 하여 return
-            if (!(isSameObjects && hasMustAttributes)) {
-                C24CostcoProductGroup c24Group = new C24CostcoProductGroup();
+        // 새 상품 crawl && set new C24Code -> insert or disable
+        try {
+            for (C24CostcoProduct c24CostcoProduct : newC24CostcoProductsSet) {
+                crawlService.crawlProduct(driver, webDriverWait, c24CostcoProduct, formatToday);
+                c24ProductService.manageC24Code(c24Code);
+                c24CostcoProduct.setC24Code(c24Code.getC24Code());
 
-                c24Group.setProductCode(productCode);
-                C24CostcoProduct c24CostcoProduct;
-                // crawl product
-                try {
-                    c24CostcoProduct = crawlService.crawlProduct(driver, webDriverWait, productCode, formatToday);
-                } catch (Exception e) {
-                    crawlService.quit(driver);
-                    throw new RuntimeException(e);
+                c24ProductService.insertC24Product(c24CostcoProduct);
+
+                // c24CostcoProduct.getC24Code() == 0 인 경우, costco_product.status 를 0 으로 업데이트
+                if (c24CostcoProduct.getC24Status() == 0) {
+                    costcoProductService.updateCostcoProductStatus(c24CostcoProduct.getProductCode(), 0);
                 }
-                c24Group.setCommonC24CostcoProduct(c24CostcoProduct);
-
-                // update with c24Group
-                c24ProductService.updateC24Group(c24Group);
             }
-        });
-        crawlService.quit(driver);
+
+            for (Map.Entry<Integer, List<C24CostcoProduct>> entry : existingC24CostcoProductsMap.entrySet()) {
+                Integer productCode = entry.getKey();
+                List<C24CostcoProduct> c24List = entry.getValue();
+
+                boolean areObjectsSame = c24ProductService.checkForSameObjects(c24List);
+                boolean haveMustAttributes = c24List.get(0).checkForMustAttributes();
+
+                if (!(areObjectsSame && haveMustAttributes)) {
+                    C24CostcoProductGroup c24Group = new C24CostcoProductGroup();
+                    c24Group.setProductCode(productCode);
+
+                    C24CostcoProduct c24CostcoProduct = crawlService.crawlProduct(driver, webDriverWait, productCode, formatToday);
+                    c24Group.setCommonC24CostcoProduct(c24CostcoProduct);
+
+                    c24ProductService.updateC24Group(c24Group);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            driver.quit();
+        }
 
         // disabling(update c24_product.status 0) : (c24_product.status == 1 && costco_product.status == 0)
         List<Integer> disablingIdxList = c24ProductService.getDisablingIdxList();

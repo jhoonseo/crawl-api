@@ -3,8 +3,10 @@
 /workspace.xml
 /src/test/java/com/project/crawl/*
 /build
+/build/*
 src/main/java/com/project/crawl/config/SchedulerConfig.java
 src/main/java/com/project/crawl/service/BatchService.java
 src/main/java/com/project/crawl/controller/TestController.java
 .gradle
 .idea
+.gradle/*

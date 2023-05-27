@@ -13,7 +13,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -94,7 +93,6 @@ public class CategoryController {
                     insertCostcoProductCodeSet.add(crawledProductCode);
                 }
             });
-
         }
 
         // insert 일괄 진행
@@ -106,7 +104,8 @@ public class CategoryController {
         // disable 진행
         costcoProductService.updateCostcoProductListStatus(dbCostcoProductCodeList, 0);
 
-        crawlService.quit(driver);
+        driver.quit();
+        
         return "renewed costco_product count is : " + totalProductItems;
     }
 
@@ -130,7 +129,7 @@ public class CategoryController {
             }
         }
 
-        crawlService.quit(driver);
+        driver.quit();
         return "updated costco_category's name column count is : " + totalUpdatedCategoryName;
     }
 }
