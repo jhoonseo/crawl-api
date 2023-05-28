@@ -17,13 +17,13 @@ public class C24CostcoProductXlsx extends C24CostcoProduct {
     public String getCategoryName() {
         return Objects.isNull(categoryName) ? "코스트코/코코모" : categoryName;
     }
-    public boolean checkForMustAttributes() {
+    public boolean checkForC24ProductMustAttributes() {
         return super.getC24Idx() != 0
-                && (!Objects.isNull(super.getName()) && !super.getName().isEmpty())
-                && (!Objects.isNull(super.getNameEn()) && !super.getNameEn().isEmpty())
+                && isNotEmpty(super.getName())
+                && isNotEmpty(super.getNameEn())
+                && super.getCostcoCategoryIdx() != 0
                 && super.getPrice() != 0
-                && (!Objects.isNull(super.getC24Code()) && !super.getC24Code().isEmpty())
-                && (!Objects.isNull(super.getThumbMain()) && !super.getThumbMain().isEmpty());
-
+                && isNotEmpty(super.getC24Code())
+                && isNotEmpty(super.getThumbMain());
     }
 }

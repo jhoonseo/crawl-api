@@ -120,12 +120,18 @@ public class C24ProductDao {
                 ).execute();
     }
 
+    public void updateStatusByProductCode(Integer productCode, Integer status) {
+        context.update(table("c24_product_test"))
+                .set(field("status"), status)
+                .where(field("costco_product_code").eq(productCode))
+                .execute();
+    }
+
     public void updateStatusByIdxList(List<Integer> idxList, Integer status) {
         context.update(table("c24_product_test"))
                 .set(field("status"), status)
                 .where(field("idx").in(idxList))
                 .execute();
-
     }
 
     public void insertC24Product(C24CostcoProduct c24P) {

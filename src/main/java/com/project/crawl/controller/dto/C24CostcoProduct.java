@@ -38,22 +38,27 @@ public class C24CostcoProduct {
 
     private int c24Status = 1; // c24_product
 
-    public boolean checkForMustAttributes() {
-        boolean isValid = true;
-        if (cpIdx == 0
-                || c24Idx == 0
-                || (Objects.isNull(name) || name.isEmpty())
-                || (Objects.isNull(nameEn) || nameEn.isEmpty())
-                || costcoCategoryIdx == 0
-                || price == 0
-                || (Objects.isNull(c24Code) || c24Code.isEmpty())
-                || (Objects.isNull(thumbDetail) || thumbDetail.isEmpty())
-                || (Objects.isNull(thumbMain) || thumbMain.isEmpty())
-        ) {
-            isValid = false;
-            log.error("mustAttributes are not set for productCode: {}", productCode);
-        }
-        return isValid;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        C24CostcoProduct that = (C24CostcoProduct) o;
+        return productCode == that.productCode &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(nameEn, that.nameEn) &&
+                Objects.equals(thumbMain, that.thumbMain) &&
+                Objects.equals(thumbDetail, that.thumbDetail) &&
+                costcoCategoryIdx == that.costcoCategoryIdx &&
+                price == that.price;
+    }
+
+
+    public boolean checkForC24ProductMustAttributes() {
+        return isNotEmpty(thumbMain);
+    }
+
+    public boolean isNotEmpty(String value) {
+        return !Objects.isNull(value) && !value.isEmpty();
     }
 
     public String getProductUrl() {

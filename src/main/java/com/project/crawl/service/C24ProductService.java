@@ -4,6 +4,7 @@ import com.project.crawl.controller.dto.C24Code;
 import com.project.crawl.controller.dto.C24CostcoProduct;
 import com.project.crawl.controller.dto.C24CostcoProductGroup;
 import com.project.crawl.dao.C24ProductDao;
+import com.project.crawl.exceptions.CrawlException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,10 @@ public class C24ProductService {
 
     public void updateC24Group(C24CostcoProductGroup c24Group) {
         c24ProductDao.updateC24Group(c24Group);
+    }
+
+    public void updateStatusByProductCode(Integer productCode, Integer status) {
+        c24ProductDao.updateStatusByProductCode(productCode, status);
     }
 
     public void updateStatusByIdxList(List<Integer> idxList, Integer status) {
@@ -83,7 +88,7 @@ public class C24ProductService {
             StringBuilder sb = new StringBuilder();
             sb.append(d).append(c).append(b).append(a);
             log.error("manageC24Code fail {}", sb);
-            throw new Exception(String.format("manageC24Code fail %s", sb));
+            throw new CrawlException(CrawlException.Type.BAD_REQUEST, String.format("manageC24Code fail %s", sb));
         }
 
         c24Code.setCharsByChars(a, b, c, d);
@@ -91,7 +96,7 @@ public class C24ProductService {
 
     public boolean checkForSameObjects(List<C24CostcoProduct> productList) {
         if (productList.size() <= 1) {
-            return false; // 하나 이하의 객체이므로 모두 같다고 판단
+            return true; // 하나 이하의 객체이므로 모두 같다고 판단
         }
 
         C24CostcoProduct firstProduct = productList.get(0);

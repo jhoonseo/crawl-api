@@ -45,11 +45,13 @@ public class CategoryController {
         Set<Integer> insertCostcoProductCodeSet = new HashSet<>();
         Set<CostcoProduct> insertCostcoProductSet = new HashSet<>();
 
+        // WebDriver 설정
         crawlService.setDriverProperty();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*");
         WebDriver driver = new ChromeDriver(options);
         WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
         for (Category category : categoryList) {
             CategoryInfo categoryInfo = new CategoryInfo(category.getIdx(), category.getCategory());
             Map<Integer, CostcoProduct> crawledCostcoProductMap = new HashMap<>();
@@ -105,7 +107,6 @@ public class CategoryController {
         costcoProductService.updateCostcoProductListStatus(dbCostcoProductCodeList, 0);
 
         driver.quit();
-        
         return "renewed costco_product count is : " + totalProductItems;
     }
 

@@ -46,7 +46,7 @@ public class ResizeService {
         String dailySmallDirectory = String.join("/", localDailyDirectory, formatToday, "small");
         String dailyMediumDirectory = String.join("/", localDailyDirectory, formatToday, "medium");
         String dailyTinyDirectory = String.join("/", localDailyDirectory, formatToday, "tiny");
-        commonUtil.createDirectories(resizedDirectory,resizedSmallDirectory, resizedMediumDirectory, resizedTinyDirectory, dailySmallDirectory, dailyMediumDirectory, dailyTinyDirectory);
+        commonUtil.generateDirectories(resizedDirectory,resizedSmallDirectory, resizedMediumDirectory, resizedTinyDirectory, dailySmallDirectory, dailyMediumDirectory, dailyTinyDirectory);
 
         ImageInputStream in = null;
         BufferedImage img = null;

@@ -26,6 +26,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -122,7 +123,7 @@ public class CommonUtil {
         }
     }
 
-    public void createDirectories(String... directories) throws IOException {
+    public void generateDirectories(String... directories) throws IOException {
         for (String directory : directories) {
             Path path = Paths.get(directory);
             if (!Files.exists(path)) {
@@ -135,7 +136,7 @@ public class CommonUtil {
         String dailyToday = String.join("/", localDailyDirectory, formatToday);
         String dailyTodayImages = String.join("/", localDailyDirectory, formatToday, "images");
 
-        createDirectories(localDirectory, localImagesDirectory, localDailyDirectory, localDailyDirectory, dailyToday, dailyTodayImages);
+        generateDirectories(localDirectory, localImagesDirectory, localDailyDirectory, localDailyDirectory, dailyToday, dailyTodayImages);
     }
 
     public boolean isImageDownloaded(String imageUrl, String fileName, String formatToday) throws IOException {

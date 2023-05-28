@@ -89,6 +89,6 @@ public class C24XlsxDao {
                 .and(field("c24.c24_code").isNotNull())
                 .fetchStreamInto(C24CostcoProductXlsx.class);
 
-        return unavailableStream.filter(C24CostcoProductXlsx::checkForMustAttributes).collect(Collectors.toList());
+        return unavailableStream.filter(C24CostcoProductXlsx::checkForC24ProductMustAttributes).collect(Collectors.toList());
     }
 }

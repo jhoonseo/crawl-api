@@ -37,6 +37,11 @@ public class FileController {
         return resizeService.resizeDailyDirectoryImages(formatToday);
     }
 
+    @GetMapping("/images/resize_all")
+    public void resizeTotalDirectoryImages() throws IOException {
+        // todo resize all images in images directory, and save into daily directory
+    }
+
     @GetMapping("/images/upload/ftp")
     public void ftpUploadImages() throws IOException {
         LocalDate today = LocalDate.now();

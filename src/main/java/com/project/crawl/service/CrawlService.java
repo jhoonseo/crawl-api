@@ -4,6 +4,7 @@ import com.project.crawl.controller.dto.C24CostcoProduct;
 import com.project.crawl.controller.dto.Category;
 import com.project.crawl.controller.dto.CategoryInfo;
 import com.project.crawl.controller.dto.CostcoProduct;
+import com.project.crawl.exceptions.CrawlException;
 import com.project.crawl.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
@@ -211,6 +211,7 @@ public class CrawlService {
                 || !waitUntilPresenceOfNestedAllByClass(webDriverWait, "thumb", By.tagName("picture"))
                 || !waitUntilPresenceOfNestedAllByClass(webDriverWait, "thumb", By.tagName("img"))
             ) {
+            throwExceptionIfHttpStatus403(driver);
             c24CostcoProduct.setC24Status(0);
             return;
         }
@@ -382,6 +383,28 @@ public class CrawlService {
             thumbUrlList.remove(0);
             c24CostcoProduct.setThumbExtra(String.join("|", thumbUrlList));
         }
+    }
+
+    public void throwExceptionIfHttpStatus403(WebDriver driver) throws CrawlException {
+        Long statusCode = checkHttpStatus(driver);
+        if (statusCode == 403) {
+            throw new CrawlException(CrawlException.Type.FORBIDDEN);
+        }
+    }
+
+    public void throwExceptionIfHttpStatus4xx(WebDriver driver) throws CrawlException {
+        Long statusCode = checkHttpStatus(driver);
+        if (statusCode >= 400 && statusCode < 500) {
+            throw new CrawlException(CrawlException.Type.BAD_REQUEST);
+        }
+    }
+
+    public Long checkHttpStatus(WebDriver driver) {
+        return (Long) ((JavascriptExecutor) driver).executeScript(
+                "var xhr = new XMLHttpRequest(); " +
+                        "xhr.open('GET', window.location.href, false); " +
+                        "xhr.send(); " +
+                        "return xhr.status;");
     }
 
     private boolean waitUntilPageLoad(WebDriverWait webDriverWait) {
