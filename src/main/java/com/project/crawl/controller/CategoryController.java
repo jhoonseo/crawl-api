@@ -43,7 +43,7 @@ public class CategoryController {
         List<Integer> dbCostcoProductCodeList = costcoProductService.getAllCostcoProductCodeList();
         Set<Integer> updatedCostcoProductCodeSet = new HashSet<>();
         Set<Integer> insertCostcoProductCodeSet = new HashSet<>();
-        Set<CostcoProduct> insertCostcoProductSet = new HashSet<>();
+        Map<Integer, CostcoProduct> insertCostcoProductMap = new HashMap<>();
 
         // WebDriver 설정
         crawlService.setDriverProperty();
@@ -88,8 +88,8 @@ public class CategoryController {
                     updatedCostcoProductCodeSet.add(crawledProductCode);
                 } else {
                     // costcoProductService.insertCostcoProduct(crawledCostcoProduct); // 방법1
-                    // insertSet 에 추가
-                    insertCostcoProductSet.add(crawledCostcoProduct); // 방법2
+                    // insertMap 에 추가, crawledCostcoProduct 가 카테고리에 중복 존재할 수 있음
+                    insertCostcoProductMap.put(crawledProductCode, crawledCostcoProduct);
                     // dbCodeSet && insertCodeSet 에 추가
                     dbCostcoProductCodeList.add(crawledProductCode);
                     insertCostcoProductCodeSet.add(crawledProductCode);
@@ -98,7 +98,7 @@ public class CategoryController {
         }
 
         // insert 일괄 진행
-        costcoProductService.insertCostcoProductSet(insertCostcoProductSet); // 방법2
+        costcoProductService.insertCostcoProductCollection(insertCostcoProductMap.values()); // 방법2
 
         // dbSet - (updatedSet + insertSet) 은 disable (품절 상품은 카테고리에서 노출되지 않아, dbSet 에만 존재)
         dbCostcoProductCodeList.removeAll(updatedCostcoProductCodeSet);

@@ -56,8 +56,8 @@ public class CostcoProductService {
         costcoProductDao.insertCostcoProduct(costcoProduct);
     }
 
-    public void insertCostcoProductSet(Set<CostcoProduct> costcoProductSet) {
-        costcoProductDao.insertCostcoProductSet(costcoProductSet);
+    public void insertCostcoProductCollection(Collection<CostcoProduct> costcoProductCollection) {
+        costcoProductDao.insertCostcoProductCollection(costcoProductCollection);
     }
 
 }

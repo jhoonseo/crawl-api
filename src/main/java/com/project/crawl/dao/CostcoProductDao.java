@@ -10,10 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -108,7 +105,7 @@ public class CostcoProductDao {
                 .execute();
     }
 
-    public void insertCostcoProductSet(Set<CostcoProduct> costcoProductSet) {
+    public void insertCostcoProductCollection(Collection<CostcoProduct> costcoProductCollection) {
         // Prepare the insert query
         InsertValuesStep14<Record, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object> insertQuery = context
                 .insertInto(table("costco_product"))
@@ -136,7 +133,7 @@ public class CostcoProductDao {
             Object, Object, Object, Object>> valuesList = new ArrayList<>();
 
         // Add values for each CostcoProduct in the set
-        costcoProductSet.forEach(product -> {
+        costcoProductCollection.forEach(product -> {
             InsertValuesStep14<Record,
                 Object, Object, Object, Object, Object,
                 Object, Object, Object, Object, Object,
