@@ -72,8 +72,9 @@ public class ExcelService {
                 Row dataRow = sheet.createRow(rowNum++);
                 String manageName = "p-" + c24CostcoProductXlsx.getProductCode();
                 String name = c24CostcoProductXlsx.getName();
+                String qtyName = c24CostcoProductXlsx.getQtyName();
                 String nameEn = c24CostcoProductXlsx.getNameEn();
-                int price = c24CostcoProductXlsx.getPrice();
+                int price = c24CostcoProductXlsx.getQtyPrice();
                 String categoryName = c24CostcoProductXlsx.getCategoryName();
 
                 // -------- 데이터 셀 생성 및 값 설정 --------
@@ -92,7 +93,7 @@ public class ExcelService {
                 // 상품분류 추천상품영역 6
                 dataRow.createCell(6).setCellValue(availability);
                 // 상품명 7
-                dataRow.createCell(7).setCellValue(name);
+                dataRow.createCell(7).setCellValue(qtyName);
                 // 영문 상품명 8
                 dataRow.createCell(8).setCellValue(nameEn);
                 // 상품명(관리용) 9
@@ -142,17 +143,15 @@ public class ExcelService {
                 dataRow.createCell(24);
                 // 주문수량 제한 기준 25
                 dataRow.createCell(25).setCellValue("O");
-                // 최소 주문수량(이상) 26
-                int minQty = c24CostcoProductXlsx.getMinQty();
-                dataRow.createCell(26);
-                if (minQty > 0) {
-                    dataRow.getCell(26).setCellValue(c24CostcoProductXlsx.getMinQty());
-                }
+                // 최소 주문수량(이상) 26 (최대는 오픈마켓 적용이 되는데, 최소는 일부 마켓에서 적용이 안된다.)
+                dataRow.createCell(26).setCellValue("");
                 // 최대 주문수량(이하) 27
-                int maxQty = c24CostcoProductXlsx.getMinQty();
                 dataRow.createCell(27);
-                if (maxQty > 0) {
+                int maxQty = c24CostcoProductXlsx.getMinQty();
+                if (maxQty > 1) {
                     dataRow.getCell(27).setCellValue(c24CostcoProductXlsx.getMaxQty());
+                } else {
+                    dataRow.getCell(27).setCellValue("");
                 }
                 // 적립금 28
                 dataRow.createCell(28);

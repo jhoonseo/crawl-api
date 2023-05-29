@@ -1,5 +1,6 @@
 package com.project.crawl.service;
 
+import com.project.crawl.exceptions.CrawlException;
 import com.project.crawl.util.CommonUtil;
 import com.project.crawl.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +12,12 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -22,62 +26,118 @@ public class ResizeService {
     @Value("${local.directory}")
     private String localDirectory;
 
-    @Value("${local.daily.directory}")
-    private String localDailyDirectory;
-
-
     private final ImageUtil imageUtil;
     private final CommonUtil commonUtil;
+
+    public List<String> resizeEntireDirectoryImages(String formatToday) throws IOException {
+        String imagesDirectory = localDirectory + "/images";
+        File[] files = new File(imagesDirectory).listFiles();
+        List<String> exceptList = new ArrayList<>();
+
+        if (Objects.isNull(files)) {
+            return exceptList;
+        }
+
+        String[] resizedDirectories = {
+                "images_resized",
+                "images_resized/small",
+                "images_resized/medium",
+                "images_resized/tiny"
+        };
+
+        String[] dailyDirectories = {
+                String.join("/", "daily", formatToday, "small"),
+                String.join("/", "daily", formatToday, "medium"),
+                String.join("/", "daily", formatToday, "tiny")
+        };
+
+        commonUtil.generateDirectories(Stream.concat(Arrays.stream(resizedDirectories), Arrays.stream(dailyDirectories))
+                .map(path -> Path.of(localDirectory, path))
+                .toArray(Path[]::new));
+
+        for (File file : files) {
+            if (file.isFile() && !file.isHidden() && !file.getName().startsWith(".")) {
+                String fileName = file.getName();
+                String imagePath = imagesDirectory + "/" + fileName;
+                try {
+                    BufferedImage originalImage = ImageIO.read(new File(imagePath));
+
+                    BufferedImage img300 = imageUtil.resizeImage(originalImage, 300, 300);
+                    Stream.of(dailyDirectories[0], resizedDirectories[1], dailyDirectories[2], resizedDirectories[3])
+                            .forEach(directory -> imageUtil.writeImage(img300, Path.of(localDirectory, directory, fileName)));
+
+                    BufferedImage img500 = imageUtil.resizeImage(originalImage, 500, 500);
+                    Stream.of(resizedDirectories[2], dailyDirectories[1])
+                            .forEach(directory -> imageUtil.writeImage(img500, Path.of(localDirectory, directory, fileName)));
+                } catch (Exception e) {
+                    if (e instanceof FileNotFoundException) {
+                        // CrawlException.Type.FORBIDDEN 일 경우, 그대로 throw
+                        throw e;
+                    }
+                    log.debug("Error occurred while resizing {}: {}", fileName, e.getMessage());
+                    exceptList.add(fileName);
+                }
+            }
+        }
+        return exceptList;
+    }
+
     public List<String> resizeDailyDirectoryImages(String formatToday) throws IOException {
-        String dailyImagesDirectory = String.join("/", localDailyDirectory, formatToday, "images");
+        String dailyImagesDirectory = String.join("/", localDirectory, "daily", formatToday, "images");
         File[] files = new File(dailyImagesDirectory).listFiles();
         List<String> exceptList = new ArrayList<>();
 
-        if (Objects.isNull(files)) return exceptList;
+        if (Objects.isNull(files)) {
+            return exceptList;
+        }
 
         Set<File> fileSet = Arrays.stream(files)
                 .filter(file -> file.isFile() && !file.isHidden() && !file.getName().startsWith("."))
                 .collect(Collectors.toSet());
 
-        String resizedDirectory = String.join("/", localDirectory, "/images_resized");
-        String resizedSmallDirectory = String.join("/", localDirectory, "/images_resized/small");
-        String resizedMediumDirectory = String.join("/", localDirectory, "/images_resized/medium");
-        String resizedTinyDirectory = String.join("/", localDirectory, "/images_resized/tiny");
-        String dailySmallDirectory = String.join("/", localDailyDirectory, formatToday, "small");
-        String dailyMediumDirectory = String.join("/", localDailyDirectory, formatToday, "medium");
-        String dailyTinyDirectory = String.join("/", localDailyDirectory, formatToday, "tiny");
-        commonUtil.generateDirectories(resizedDirectory,resizedSmallDirectory, resizedMediumDirectory, resizedTinyDirectory, dailySmallDirectory, dailyMediumDirectory, dailyTinyDirectory);
+        String[] resizedDirectories = {
+                "images_resized",
+                "images_resized/small",
+                "images_resized/medium",
+                "images_resized/tiny"
+        };
 
-        ImageInputStream in = null;
-        BufferedImage img = null;
+        String[] dailyDirectories = {
+                String.join("/", "daily", formatToday, "small"),
+                String.join("/", "daily", formatToday, "medium"),
+                String.join("/", "daily", formatToday, "tiny")
+        };
+
+        commonUtil.generateDirectories(Stream.concat(Arrays.stream(resizedDirectories), Arrays.stream(dailyDirectories))
+                .map(path -> Path.of(localDirectory, path))
+                .toArray(Path[]::new));
 
         for (File file : fileSet) {
             log.debug("resizing file name: {}", file.getName());
-            String fileRoute = localDirectory + "/images/" + file.getName();
+            String fileName = file.getName();
+            String imagePath = localDirectory + "/images/" + fileName;
             try {
-                in = ImageIO.createImageInputStream(new File(fileRoute));
-                img = ImageIO.read(in);
-                if (!commonUtil.fileExists(resizedSmallDirectory, file.getName())) {
+                BufferedImage img = ImageIO.read(new File(imagePath));
+                if (!commonUtil.fileExists(resizedDirectories[1], fileName)) {
                     BufferedImage img300 = imageUtil.resizeImage(img, 300, 300);
-                    imageUtil.writeImage(img300, dailySmallDirectory, file.getName());
-                    imageUtil.writeImage(img300, resizedSmallDirectory, file.getName());
-                    imageUtil.writeImage(img300, dailyTinyDirectory, file.getName());
-                    imageUtil.writeImage(img300, resizedTinyDirectory, file.getName());
+                    Stream.of(dailyDirectories[0], resizedDirectories[1], dailyDirectories[2], resizedDirectories[3])
+                            .forEach(directory -> imageUtil.writeImage(img300, Path.of(localDirectory, directory, fileName)));
                 }
-                if (!commonUtil.fileExists(resizedMediumDirectory, file.getName())) {
+                if (!commonUtil.fileExists(resizedDirectories[2], fileName)) {
                     BufferedImage img500 = imageUtil.resizeImage(img, 500, 500);
-                    imageUtil.writeImage(img500, resizedMediumDirectory, file.getName());
-                    imageUtil.writeImage(img500, dailyMediumDirectory, file.getName());
+                    Stream.of(resizedDirectories[2], dailyDirectories[1])
+                            .forEach(directory -> imageUtil.writeImage(img500, Path.of(localDirectory, directory, fileName)));
                 }
             } catch (Exception e) {
-                log.debug("error occurred resizing {} : {}", file.getName(), e.getMessage());
-                exceptList.add(file.getName());
+                if (e instanceof FileNotFoundException) {
+                    // CrawlException.Type.FORBIDDEN 일 경우, 그대로 throw
+                    throw e;
+                }
+                log.debug("Error occurred while resizing {}: {}", fileName, e.getMessage());
+                exceptList.add(fileName);
             }
         }
-        commonUtil.close(in); // ImageInputStream 제거
-        assert img != null;
-        img.flush(); // BufferedImage 제거
-
         return exceptList;
     }
+
 }

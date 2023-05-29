@@ -29,12 +29,20 @@ public class FileController {
     private final C24XlsxService c24XlsxService;
 
     @GetMapping("/images/resize")
-    public List<String> resizeDirectoryImages() throws IOException {
+    public List<String> resizeDailyImages() throws IOException {
         LocalDate today = LocalDate.now();
         String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
 
         // 에러 파일을 가지고 있는 상품을 가져와서 파일명만 대조 후, 일괄 비활성화
         return resizeService.resizeDailyDirectoryImages(formatToday);
+    }
+
+    @GetMapping("/images/resizeAll")
+    public List<String> resizeAllImages(LocalDate today) throws IOException {
+        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+
+        // 에러 파일을 가지고 있는 상품을 가져와서 파일명만 대조 후, 일괄 비활성화
+        return resizeService.resizeEntireDirectoryImages(formatToday);
     }
 
     @GetMapping("/images/resize_all")

@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -78,6 +79,14 @@ public class ImageUtil {
             ImageIO.write(image, "jpg", new File(directory, fileName));
         } catch (Exception e) {
             log.error("Error writing image to directory '{}': {}", directory, e.getMessage());
+        }
+    }
+
+    public void writeImage(BufferedImage image, Path path) {
+        try {
+            ImageIO.write(image, "jpg", new File(path.toUri()));
+        } catch (Exception e) {
+            log.error("Error writing image to directory '{}': {}", path, e.getMessage());
         }
     }
 

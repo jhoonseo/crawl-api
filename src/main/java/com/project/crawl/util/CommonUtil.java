@@ -132,6 +132,14 @@ public class CommonUtil {
         }
     }
 
+    public void generateDirectories(Path... paths) throws IOException {
+        for (Path path : paths) {
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+        }
+    }
+
     public void generateDailyDirectories(String formatToday) throws IOException {
         String dailyToday = String.join("/", localDailyDirectory, formatToday);
         String dailyTodayImages = String.join("/", localDailyDirectory, formatToday, "images");

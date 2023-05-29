@@ -46,7 +46,7 @@ public class C24ProductDao {
                 field("is_member_only"),
                 field("c24.status").as("c24_status")
         ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
                 .where(field("cp.status").eq(1))
                 .orderBy(field("product_code").asc())
                 .fetchInto(C24CostcoProduct.class);
@@ -79,7 +79,7 @@ public class C24ProductDao {
                         field("is_member_only"),
                         field("c24.status").as("c24_status")
                 ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
                 .where(field("cp.status").eq(1).and(field("c24.status").eq(1)))
                 .orderBy(field("product_code").asc())
                 .fetchInto(C24CostcoProduct.class);
@@ -87,14 +87,14 @@ public class C24ProductDao {
 
     public String getLastC24Code() {
         return context.select(field("c24_code"))
-                .from(table("c24_product_test"))
+                .from(table("c24_product_test2"))
                 .orderBy(field("c24_code").desc())
                 .limit(1)
                 .fetchOneInto(String.class);
     }
     public List<Integer> getDisablingIdxList() {
         return context.select(field("c24.idx"))
-                .from(table("c24_product_test").as("c24"))
+                .from(table("c24_product_test2").as("c24"))
                 .leftJoin(table("costco_product").as("cp"))
                 .on(field("c24.costco_product_code").eq("cp.product_code"))
                 .where(
@@ -106,7 +106,7 @@ public class C24ProductDao {
 
     public void updateC24Group(C24CostcoProductGroup c24Group) {
         C24CostcoProduct c24P = c24Group.getCommonC24CostcoProduct();
-        context.update(table("c24_product_test"))
+        context.update(table("c24_product_test2"))
                 .set(field("thumb_main"), c24P.getThumbMain())
                 .set(field("thumb_extra"), c24P.getThumbExtra())
                 .set(field("thumb_extra_filenames"), c24P.getThumbExtraFilenames())
@@ -121,21 +121,21 @@ public class C24ProductDao {
     }
 
     public void updateStatusByProductCode(Integer productCode, Integer status) {
-        context.update(table("c24_product_test"))
+        context.update(table("c24_product_test2"))
                 .set(field("status"), status)
                 .where(field("costco_product_code").eq(productCode))
                 .execute();
     }
 
     public void updateStatusByIdxList(List<Integer> idxList, Integer status) {
-        context.update(table("c24_product_test"))
+        context.update(table("c24_product_test2"))
                 .set(field("status"), status)
                 .where(field("idx").in(idxList))
                 .execute();
     }
 
     public void insertC24Product(C24CostcoProduct c24P) {
-        context.insertInto(table("c24_product_test"))
+        context.insertInto(table("c24_product_test2"))
                 .columns(
                         field("costco_product_code"),
                         field("c24_code"),
