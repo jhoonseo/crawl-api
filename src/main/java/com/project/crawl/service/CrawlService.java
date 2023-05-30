@@ -30,7 +30,7 @@ public class CrawlService {
     private String webDriverId;
     @Value("${web.driver.path:}")
     private String webDriverPath;
-    @Value("${cdn.base.url:")
+    @Value("${cdn.base.url:}")
     private String cdnBaseUrl;
 
 
@@ -369,9 +369,8 @@ public class CrawlService {
                 String thumbUrl = thumbUrlList.get(i);
                 String thumbFilename = thumbUrl.split("/")[thumbUrl.split("/").length - 1];
                 String src = String.join("/", cdnBaseUrl, thumbFilename);
-                thumbDetailInfo.append("<img src=").append(src)
-                        .append(" alt=").append(c24CostcoProduct.getName())
-                        .append(" style='width: 100%; margin-bottom:60px;' />\n ");
+                thumbDetailInfo.append("<img src='").append(src)
+                        .append("' style='width: 100%; margin-bottom:60px;'/>\n ");
                 if (i > 0) {
                     thumbFilenameList.add(thumbFilename);
                 }

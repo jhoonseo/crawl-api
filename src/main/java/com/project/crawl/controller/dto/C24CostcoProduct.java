@@ -52,6 +52,17 @@ public class C24CostcoProduct {
                 price == that.price;
     }
 
+    public boolean isC24StatusDisabled() {
+        return c24Status == 0;
+    }
+
+    public int getMaxQty() {
+        if (maxQty > 0 && minQty > 0) {
+            return maxQty / minQty;
+        }
+        return maxQty;
+    }
+
     public int getQtyPrice() {
         if (minQty > 1) {
             return price * minQty;
@@ -65,7 +76,7 @@ public class C24CostcoProduct {
         } else if (minQty > 1 && name.contains("최소구매")) {
             return name.replace("최소구매", "") + "세트";
         } else if (minQty > 1) {
-            return name + " / " + minQty + " 세트";
+            return name + " / " + minQty + "세트";
         }
 
         return name;

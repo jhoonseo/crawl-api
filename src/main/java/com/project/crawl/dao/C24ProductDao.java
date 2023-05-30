@@ -2,12 +2,16 @@ package com.project.crawl.dao;
 
 import com.project.crawl.controller.dto.C24CostcoProduct;
 import com.project.crawl.controller.dto.C24CostcoProductGroup;
+import com.project.crawl.controller.dto.CostcoProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.table;
@@ -102,6 +106,25 @@ public class C24ProductDao {
                                 .and(field("cp.status").eq(0)))
                 .orderBy(field("product_code").asc())
                 .fetchInto(Integer.class);
+    }
+
+    public Map<Integer, C24CostcoProduct> getAllC24Product() {
+        Stream<C24CostcoProduct> a = context.select(
+                    field("idx").as("c24_idx"),
+                    field("thumb_detail"),
+                    field("thumb_main"),
+                    field("thumb_extra"),
+                    field("thumb_extra_filenames")
+                ).from(table("c24_product_test2"))
+                .fetchStreamInto(C24CostcoProduct.class);
+        return a.collect(Collectors.toMap(C24CostcoProduct::getC24Idx, c24 -> c24));
+    }
+
+    public void updateThumbDetailByIdx(Integer idx, String thumbDetail) {
+        context.update(table("c24_product_test2"))
+                .set(field("thumb_detail"), thumbDetail)
+                .where(field("idx").eq(idx))
+                .execute();
     }
 
     public void updateC24Group(C24CostcoProductGroup c24Group) {

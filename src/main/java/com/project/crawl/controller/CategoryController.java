@@ -43,7 +43,7 @@ public class CategoryController {
         List<Integer> dbCostcoProductCodeList = costcoProductService.getAllCostcoProductCodeList();
         Set<Integer> updatedCostcoProductCodeSet = new HashSet<>();
         Set<Integer> insertCostcoProductCodeSet = new HashSet<>();
-        Map<Integer, CostcoProduct> insertCostcoProductMap = new HashMap<>();
+        HashMap<Integer, CostcoProduct> insertCostcoProductMap = new HashMap<>();
 
         // WebDriver 설정
         crawlService.setDriverProperty();

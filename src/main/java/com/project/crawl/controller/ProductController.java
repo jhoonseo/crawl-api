@@ -117,6 +117,7 @@ public class ProductController {
 
                 boolean areObjectsSame = c24ProductService.checkForSameObjects(c24List);
                 boolean checkRandomMustAttributes = c24List.get(0).checkForC24ProductMustAttributes();
+                boolean isStatusUpdateRequired = c24List.get(0).isC24StatusDisabled() && c24List.get(0).getIsOption() == 0;
 
                 if (!(areObjectsSame && checkRandomMustAttributes)) {
                     C24CostcoProductGroup c24Group = new C24CostcoProductGroup();
@@ -140,6 +141,8 @@ public class ProductController {
                     }
                     c24Group.setCommonC24CostcoProduct(c24CostcoProduct);
                     c24ProductService.updateC24Group(c24Group);
+                } else if (isStatusUpdateRequired) {
+                    c24ProductService.updateStatusByProductCode(productCode, 1);
                 }
             }
 

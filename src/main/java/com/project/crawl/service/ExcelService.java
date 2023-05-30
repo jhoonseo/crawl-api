@@ -70,7 +70,7 @@ public class ExcelService {
             int rowNum = 1;
             for (C24CostcoProductXlsx c24CostcoProductXlsx : chunk.getC24CostcoProductList()) {
                 Row dataRow = sheet.createRow(rowNum++);
-                String manageName = "p-" + c24CostcoProductXlsx.getProductCode();
+                String manageName = "cos-" + c24CostcoProductXlsx.getProductCode();
                 String name = c24CostcoProductXlsx.getName();
                 String qtyName = c24CostcoProductXlsx.getQtyName();
                 String nameEn = c24CostcoProductXlsx.getNameEn();
@@ -99,7 +99,7 @@ public class ExcelService {
                 // 상품명(관리용) 9
                 dataRow.createCell(9).setCellValue(manageName);
                 // 공급사 상품명 10
-                dataRow.createCell(10).setCellValue(manageName);
+                dataRow.createCell(10).setCellValue(name);
                 // 모델명 11
                 dataRow.createCell(11).setCellValue(name.substring(0, Math.min(name.length(), 20)));
                 // 상품 요약설명 12
@@ -147,9 +147,9 @@ public class ExcelService {
                 dataRow.createCell(26).setCellValue("");
                 // 최대 주문수량(이하) 27
                 dataRow.createCell(27);
-                int maxQty = c24CostcoProductXlsx.getMinQty();
-                if (maxQty > 1) {
-                    dataRow.getCell(27).setCellValue(c24CostcoProductXlsx.getMaxQty());
+                int maxQty = c24CostcoProductXlsx.getMaxQty();
+                if (maxQty > 0) {
+                    dataRow.getCell(27).setCellValue(maxQty);
                 } else {
                     dataRow.getCell(27).setCellValue("");
                 }
