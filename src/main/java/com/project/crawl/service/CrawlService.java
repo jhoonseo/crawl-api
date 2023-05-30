@@ -12,12 +12,15 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
 
 @Slf4j
@@ -371,15 +374,13 @@ public class CrawlService {
                 String src = String.join("/", cdnBaseUrl, thumbFilename);
                 thumbDetailInfo.append("<img src='").append(src)
                         .append("' style='width: 100%; margin-bottom:60px;'/>\n ");
-                if (i > 0) {
-                    thumbFilenameList.add(thumbFilename);
-                }
             }
             c24CostcoProduct.setThumbDetail(thumbDetailInfo.toString());
-            c24CostcoProduct.setThumbExtraFilenames(String.join("|", thumbFilenameList));
-
             c24CostcoProduct.setThumbMain(thumbUrlList.get(0));
+            // 첫번째 이미지는 추가 이미지 리스트에서 제외
             thumbUrlList.remove(0);
+            thumbFilenameList.remove(0);
+            c24CostcoProduct.setThumbExtraFilenames(String.join("|", thumbFilenameList));
             c24CostcoProduct.setThumbExtra(String.join("|", thumbUrlList));
         }
     }
@@ -421,6 +422,17 @@ public class CrawlService {
         } catch (InterruptedException e) {
             log.error("Thread sleep interrupted", e);
         }
+    }
+
+    public WebDriver createWebDriver() {
+        setDriverProperty();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        return new ChromeDriver(options);
+    }
+
+    public WebDriverWait createWebDriverWait(WebDriver driver, int timeoutSeconds) {
+        return new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
     }
 
     public void setDriverProperty() {

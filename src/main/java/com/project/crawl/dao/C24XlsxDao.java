@@ -54,7 +54,7 @@ public class C24XlsxDao {
                 .fetchInto(C24CostcoProductXlsx.class);
     }
 
-    public List<C24CostcoProductXlsx> getUnavailableC24CostcoProductXlsxList() {
+    public List<C24CostcoProductXlsx> getFilteredUnavailableC24CostcoProductXlsxList() {
         Stream<C24CostcoProductXlsx> unavailableStream = context.select(
                         field("cp.idx").as("cp_idx"),
                         field("c24.idx").as("c24_idx"),
@@ -88,7 +88,7 @@ public class C24XlsxDao {
                 .where(field("cp.status").eq(0).or(field("c24.status").eq(0)))
                 .and(field("c24.c24_code").isNotNull())
                 .fetchStreamInto(C24CostcoProductXlsx.class);
-
+        // filtered using checkForC24ProductMustAttributes()
         return unavailableStream.filter(C24CostcoProductXlsx::checkForC24ProductMustAttributes).collect(Collectors.toList());
     }
 }

@@ -30,7 +30,7 @@ public class ResizeService {
     private final CommonUtil commonUtil;
 
     public List<String> resizeEntireDirectoryImages(String formatToday) throws IOException {
-        String imagesDirectory = localDirectory + "/images";
+        String imagesDirectory = String.join("/", localDirectory, "images");
         File[] files = new File(imagesDirectory).listFiles();
         List<String> exceptList = new ArrayList<>();
 
@@ -58,9 +58,8 @@ public class ResizeService {
         for (File file : files) {
             if (file.isFile() && !file.isHidden() && !file.getName().startsWith(".")) {
                 String fileName = file.getName();
-                String imagePath = imagesDirectory + "/" + fileName;
                 try {
-                    BufferedImage originalImage = ImageIO.read(new File(imagePath));
+                    BufferedImage originalImage = ImageIO.read(new File(file.getPath()));
 
                     BufferedImage img300 = imageUtil.resizeImage(originalImage, 300, 300);
                     Stream.of(dailyDirectories[0], resizedDirectories[1], dailyDirectories[2], resizedDirectories[3])
@@ -113,11 +112,11 @@ public class ResizeService {
                 .toArray(Path[]::new));
 
         for (File file : fileSet) {
-            log.debug("resizing file name: {}", file.getName());
             String fileName = file.getName();
-            String imagePath = localDirectory + "/images/" + fileName;
+            log.debug("resizing file name: {}", fileName);
             try {
-                BufferedImage img = ImageIO.read(new File(imagePath));
+                BufferedImage img = ImageIO.read(new File(file.getPath()));
+
                 if (!commonUtil.fileExists(resizedDirectories[1], fileName)) {
                     BufferedImage img300 = imageUtil.resizeImage(img, 300, 300);
                     Stream.of(dailyDirectories[0], resizedDirectories[1], dailyDirectories[2], resizedDirectories[3])

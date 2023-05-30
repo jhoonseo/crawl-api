@@ -10,9 +10,15 @@ import java.util.Objects;
 public class C24CostcoProductXlsx extends C24CostcoProduct {
     private String searchKeyWords;
     private String categoryName;
+    private int c24CateNo;
 
     // 미분류 카테고리 코드 76
-    private int c24CateNo = 76;
+    public int getC24CateNo() {
+        if (c24CateNo == 0) {
+            return 76;
+        }
+        return c24CateNo;
+    }
 
     public String getCategoryName() {
         return Objects.isNull(categoryName) ? "코스트코/코코모" : categoryName;
@@ -21,7 +27,6 @@ public class C24CostcoProductXlsx extends C24CostcoProduct {
         return super.getC24Idx() != 0
                 && isNotEmpty(super.getName())
                 && isNotEmpty(super.getNameEn())
-                && super.getCostcoCategoryIdx() != 0
                 && super.getPrice() != 0
                 && isNotEmpty(super.getC24Code())
                 && isNotEmpty(super.getThumbMain());

@@ -18,6 +18,6 @@ public class C24XlsxService {
     }
 
     public List<C24CostcoProductXlsx> getUnavailableC24CostcoProductXlsxList() {
-        return c24XlsxDao.getUnavailableC24CostcoProductXlsxList();
+        return c24XlsxDao.getFilteredUnavailableC24CostcoProductXlsxList();
     }
 }

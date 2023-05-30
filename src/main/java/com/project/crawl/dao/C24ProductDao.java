@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,6 +56,39 @@ public class C24ProductDao {
                 .orderBy(field("product_code").asc())
                 .fetchInto(C24CostcoProduct.class);
     }
+
+    public List<C24CostcoProduct> getAllC24CostcoProductList() {
+        return context.select(
+                        field("cp.idx").as("cp_idx"),
+                        field("c24.idx").as("c24_idx"),
+                        field("product_code"),
+                        field("name"),
+                        field("name_en"),
+                        field("min_qty"),
+                        field("max_qty"),
+                        field("c24_code"),
+                        field("thumb_detail"),
+                        field("description_detail"),
+                        field("spec_info_table"),
+                        field("delivery_info"),
+                        field("refund_info"),
+                        field("thumb_main"),
+                        field("thumb_extra"),
+                        field("thumb_extra_filenames"),
+                        field("costco_category_idx"),
+                        field("price"),
+                        field("sale_amount"),
+                        field("sale_period"),
+                        field("is_sale"),
+                        field("is_option"),
+                        field("is_member_only"),
+                        field("c24.status").as("c24_status")
+                ).from(table("costco_product").as("cp"))
+                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                .orderBy(field("product_code").asc())
+                .fetchInto(C24CostcoProduct.class);
+    }
+
 
     public List<C24CostcoProduct> getC24CostcoProductListForExcel() {
         return context.select(
@@ -120,10 +154,40 @@ public class C24ProductDao {
         return a.collect(Collectors.toMap(C24CostcoProduct::getC24Idx, c24 -> c24));
     }
 
+    public List<C24CostcoProduct> getC24ProductListByC24CodeCollection(Collection collection) {
+        return context.select(
+                field("idx").as("c24_idx"),
+                field("thumb_detail"),
+                field("thumb_main"),
+                field("thumb_extra")
+        ).from(table("c24_product_test2"))
+                .fetchInto(C24CostcoProduct.class);
+    }
+
     public void updateThumbDetailByIdx(Integer idx, String thumbDetail) {
         context.update(table("c24_product_test2"))
                 .set(field("thumb_detail"), thumbDetail)
                 .where(field("idx").eq(idx))
+                .execute();
+    }
+
+    public void updateThumbsInfoByIdx(Integer idx, String thumbMain, String thumbExtra, String thumbExtraFilename, String thumbDetail) {
+        context.update(table("c24_product_test2"))
+                .set(field("thumb_main"), thumbMain)
+                .set(field("thumb_extra"), thumbExtra)
+                .set(field("thumb_extra_filenames"), thumbExtraFilename)
+                .set(field("thumb_detail"), thumbDetail)
+                .where(field("idx").eq(idx))
+                .execute();
+    }
+
+    public void updateThumbsInfoByProductCode(Integer productCode, String thumbMain, String thumbExtra, String thumbExtraFilename, String thumbDetail) {
+        context.update(table("c24_product_test2"))
+                .set(field("thumb_main"), thumbMain)
+                .set(field("thumb_extra"), thumbExtra)
+                .set(field("thumb_extra_filenames"), thumbExtraFilename)
+                .set(field("thumb_detail"), thumbDetail)
+                .where(field("costco_product_code").eq(productCode))
                 .execute();
     }
 
@@ -183,6 +247,12 @@ public class C24ProductDao {
                         c24P.getDeliveryInfo(),
                         c24P.getRefundInfo(),
                         c24P.getC24Status())
+                .execute();
+    }
+
+    public void deleteC24ProductByC24CodeCollection(Collection collection) {
+        context.deleteFrom(table("c24_product_test2"))
+                .where(field("c24_code").in(collection))
                 .execute();
     }
 }

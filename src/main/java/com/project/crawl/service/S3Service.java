@@ -49,23 +49,22 @@ public class S3Service {
     }
 
     public void uploadDirectoryFilesPublic(String path) {
-        S3Client s3Client = buildS3Client();
         File directory = new File(String.join("/", localDirectory, path));
         if (!directory.exists())
             return;
 
         File[] files = directory.listFiles();
 
-        if (files == null)
+        if (files.length == 0)
             return;
+
+        S3Client s3Client = buildS3Client();
 
         Set<File> fileSet = commonUtil.getFilteredFileSet(files);
 
         for (File file : fileSet) {
-            if (file.isFile()) {
-                String object = String.join("/", s3ImagesObject, file.getName());
-                uploadS3Public(s3Client, file.getPath(), object);
-            }
+            String object = String.join("/", s3ImagesObject, file.getName());
+            uploadS3Public(s3Client, file.getPath(), object);
         }
         s3Client.close();
     }

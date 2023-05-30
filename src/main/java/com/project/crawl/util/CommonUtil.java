@@ -26,7 +26,6 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -147,12 +146,36 @@ public class CommonUtil {
         generateDirectories(localDirectory, localImagesDirectory, localDailyDirectory, localDailyDirectory, dailyToday, dailyTodayImages);
     }
 
-    public boolean isImageDownloaded(String imageUrl, String fileName, String formatToday) throws IOException {
+    public boolean isImageDownloaded(String imageUrl, String formatToday) {
+        String fileName = imageUrl.split("/")[imageUrl.split("/").length - 1];
+        return isImageDownloaded(imageUrl, fileName, formatToday);
+    }
+
+    public boolean isImageDownloaded(String imageUrl, String fileName, String formatToday) {
         Path filePath = Path.of(localImagesDirectory, fileName);
         if (Files.exists(filePath)) {
             // 이미 파일이 존재하므로 다운로드 또는 복사하지 않고 넘어감
             return true;
         }
+        InputStream in;
+        try {
+            Path dailyImagesPath = Path.of(String.join("/", localDailyDirectory, formatToday, "images", fileName));
+            URL url = new URL(imageUrl);
+            in = new BufferedInputStream(url.openStream());
+            Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
+            in = new BufferedInputStream(url.openStream());
+            Files.copy(in, dailyImagesPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            return false;
+        }
+        close(in); // ImageInputStream 제거
+        return true;
+    }
+
+    public boolean downloadImage(String imageUrl, String formatToday) {
+        String fileName = imageUrl.split("/")[imageUrl.split("/").length - 1];
+        Path filePath = Path.of(localImagesDirectory, fileName);
+
         InputStream in;
         try {
             Path dailyImagesPath = Path.of(String.join("/", localDailyDirectory, formatToday, "images", fileName));

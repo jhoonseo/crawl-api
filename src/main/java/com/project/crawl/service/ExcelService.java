@@ -42,7 +42,7 @@ public class ExcelService {
             int endIndex = Math.min(i + chunkSize, originalSize);
             List<C24CostcoProductXlsx> chunk = originalList.subList(i, endIndex);
             c24CostcoProductChunk.setC24CostcoProductList(chunk);
-            c24CostcoProductChunk.setStartIndex(i);
+            c24CostcoProductChunk.setStartIndex(i + 1);
             c24CostcoProductChunk.setEndIndex(endIndex);
             dividedLists.add(c24CostcoProductChunk);
         }
@@ -123,7 +123,7 @@ public class ExcelService {
                 // 검색어설정 17 // todo 검색어 키워드 추가
                 String searchKeywords = String.join(",", categoryName.replace("/", ","), name.replace(" ", ","), nameEn.replace(" ", ","));
                 dataRow.createCell(17).setCellValue(searchKeywords);
-                // 과세 구분 18
+                // 과세구분 18
                 dataRow.createCell(18).setCellValue("A|10");
                 // 소비자가 19
                 double adjustedConsumerPrice = price + price * ((double) (new Random().nextInt(69 - 42 + 1) + 42) / 100);
@@ -163,11 +163,11 @@ public class ExcelService {
                 dataRow.createCell(31).setCellValue("N");
                 // 옵션사용 32
                 dataRow.createCell(32).setCellValue("N");
-                // 품목 구성 방식 33
+                // 품목 구성방식 33
                 dataRow.createCell(33);
                 // 옵션 표시방식 34
                 dataRow.createCell(34);
-                // 옵션 세트명 35
+                // 옵션세트명 35
                 dataRow.createCell(35);
                 // 옵션입력 36
                 dataRow.createCell(36);
@@ -283,19 +283,17 @@ public class ExcelService {
             String dailyXlsxDirectory = String.join("/", localDailyDirectory, formatToday, "xlsx");
             commonUtil.createDirectory(dailyXlsxDirectory);
             // 파일로 저장
-            String filename = type + '_' + chunk.getStartIndex() + '-' + chunk.getEndIndex() + '_'+ LocalTime.now() + '-' + availability + ".xlsx";
-            String filePath = String.join("/", dailyXlsxDirectory, filename);
+            String fileName = type + '_' + chunk.getStartIndex() + '-' + chunk.getEndIndex() + '_'+ LocalTime.now() + '-' + availability + ".xlsx";
+            String filePath = String.join("/", dailyXlsxDirectory, fileName);
 
             try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
                 workbook.write(fileOut);
             }
-
+            log.debug("Excel file created : {}", fileName);
             System.out.println("Excel 파일이 생성되었습니다.");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
     public void setC24ProductHeader(Sheet sheet) {
@@ -305,11 +303,11 @@ public class ExcelService {
                 "상품코드", "자체 상품코드", "진열상태", "판매상태", "상품분류 번호",
                 "상품분류 신상품영역", "상품분류 추천상품영역", "상품명", "영문 상품명", "상품명(관리용)",
                 "공급사 상품명", "모델명", "상품 요약설명", "상품 간략설명", "상품 상세설명",
-                "모바일 상품 상세설명 설정", "모바일 상품 상세설명", "검색어설정", "과세 구분", "소비자가",
+                "모바일 상품 상세설명 설정", "모바일 상품 상세설명", "검색어설정", "과세구분", "소비자가",
                 "공급가", "상품가", "판매가", "판매가 대체문구 사용", "판매가 대체문구",
                 "주문수량 제한 기준", "최소 주문수량(이상)", "최대 주문수량(이하)", "적립금",
-                "적립금 구분", "공통이벤트 정보", "성인인증", "옵션사용", "품목 구성 방식",
-                "옵션 표시방식", "옵션 세트명", "옵션입력", "옵션 스타일", "버튼이미지 설정",
+                "적립금 구분", "공통이벤트 정보", "성인인증", "옵션사용", "품목 구성방식",
+                "옵션 표시방식", "옵션세트명", "옵션입력", "옵션 스타일", "버튼이미지 설정",
                 "색상 설정", "필수여부", "품절표시 문구", "추가입력옵션", "추가입력옵션 명칭",
                 "추가입력옵션 선택/필수여부", "입력글자수(자)", "이미지등록(상세)", "이미지등록(목록)",
                 "이미지등록(작은목록)", "이미지등록(축소)", "이미지등록(추가)", "제조사", "공급사",

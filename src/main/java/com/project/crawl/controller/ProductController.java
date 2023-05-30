@@ -13,15 +13,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -30,7 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/project/crawl/product")
+@RequestMapping("/api/crawl/product")
 @Tag(name = "코스트코 상품상세 크롤링")
 public class ProductController {
     private final CostcoProductService costcoProductService;
@@ -38,9 +34,10 @@ public class ProductController {
     private final C24ProductService c24ProductService;
     private final CommonUtil commonUtil;
 
-    @GetMapping("/renew")
-    public void renewProduct() {
-        LocalDate today = LocalDate.now();
+    @PostMapping("/renew")
+    public void renewProduct(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
+    ) {
         // <c24_product 에만 존재하고, costco_product 에는 존재하지 않는 costco_product_code 는 없다고 가정>
         // Available C24CostcoProducts : costco_product.status==1
         List<C24CostcoProduct> c24CostcoProductList = c24ProductService.getAvailableC24CostcoProductList();
@@ -77,14 +74,13 @@ public class ProductController {
 
         // c24CostcoProductList 더 이상 사용하지 않으므로 초기화
         c24CostcoProductList = null;
+        // Exception 발생한 상품을 Group 으로 관리하기 위한 List
         List<C24CostcoProductExceptionGroup> c24ExceptionGroupList = new ArrayList<>();
 
         // WebDriver 설정
         crawlService.setDriverProperty();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*");
-        WebDriver driver = new ChromeDriver(options);
-        WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebDriver driver = crawlService.createWebDriver();
+        WebDriverWait webDriverWait = crawlService.createWebDriverWait(driver, 10);
 
         // 새 상품 crawl && set new C24Code -> insert or disable
         try {

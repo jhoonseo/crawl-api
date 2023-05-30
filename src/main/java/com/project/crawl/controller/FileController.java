@@ -6,9 +6,9 @@ import com.project.crawl.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +17,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/project/file")
+@RequestMapping("/api/file")
 @Tag(name = "파일 처리")
 public class FileController {
 
@@ -28,9 +28,10 @@ public class FileController {
     private final RestrictedKeywordService restrictedKeywordService;
     private final C24XlsxService c24XlsxService;
 
-    @GetMapping("/images/resize")
-    public List<String> resizeDailyImages() throws IOException {
-        LocalDate today = LocalDate.now();
+    @PostMapping("/images/resize")
+    public List<String> resizeDailyImages(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
+    ) throws IOException {
         String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
 
         // todo 에러 파일을 가지고 있는 상품을 가져와서 파일명만 대조 후, 일괄 비활성화
@@ -45,9 +46,10 @@ public class FileController {
         return resizeService.resizeEntireDirectoryImages(formatToday);
     }
 
-    @GetMapping("/images/upload/ftp")
-    public void ftpUploadImages() throws IOException {
-        LocalDate today = LocalDate.now();
+    @PostMapping("/images/ftp/daily")
+    public void ftpUploadDailyImages(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
+    ) throws IOException {
         String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
 
         String[][] pathArray = ftpService.getPathArray(formatToday);
@@ -57,17 +59,28 @@ public class FileController {
         }
     }
 
-    @GetMapping("/images/upload/s3")
-    public void s3UploadImagesPublic() {
-        LocalDate today = LocalDate.now();
+    @GetMapping("/images/ftp/all")
+    public void ftpUploadAllImages() throws IOException {
+        String[][] pathArray = ftpService.getTotalPathArray();
+
+        for (String[] path : pathArray) {
+            ftpService.uploadDirectoryFiles(path[0], path[1]);
+        }
+    }
+
+    @PostMapping("/images/s3/daily")
+    public void s3UploadImagesPublic(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
+    ) {
         String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
         String path = String.join("/", "daily", formatToday, "images");
         s3Service.uploadDirectoryFilesPublic(path);
     }
 
-    @GetMapping("/excel/export")
-    public void exportExcel() {
-        LocalDate today = LocalDate.now();
+    @PostMapping("/excel/export")
+    public void exportExcel(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
+    ) {
         String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
         // 판매 가능 상품 조회
         List<C24CostcoProductXlsx> availableList = c24XlsxService.getAvailableC24CostcoProductXlsxList();

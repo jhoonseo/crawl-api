@@ -57,22 +57,21 @@ public class FtpService {
     }
 
     public void uploadDirectoryFiles(String localDir, String ftpDir) throws IOException {
-        connectFtp();
         File directory = new File(localDir);
         if (!directory.exists())
             return;
 
         File[] files = directory.listFiles();
 
-        if (files == null)
+        if (files != null && files.length == 0)
             return;
+
+        connectFtp();
 
         Set<File> fileSet = commonUtil.getFilteredFileSet(files);
 
         for (File file : fileSet) {
-            if (file.isFile()) {
-                uploadFtp(file, ftpDir, file.getName());
-            }
+            uploadFtp(file, ftpDir, file.getName());
         }
 
         quitFtp();
@@ -80,13 +79,25 @@ public class FtpService {
 
     public String[][] getPathArray(String formatToday) {
         return new String[][]{
-                {String.join("/", localDirectory, "daily", formatToday, "images"), "/web/product/big"},
-                {String.join("/", localDirectory, "daily", formatToday, "images"), "/web/product/extra/excel"},
-                {String.join("/", localDirectory, "images_resized", formatToday, "medium"), "/web/product/medium"},
-                {String.join("/", localDirectory, "images_resized", formatToday, "small"), "/web/product/small"},
-                {String.join("/", localDirectory, "images_resized", formatToday, "tiny"), "/web/product/tiny"},
+                {String.join("/", localDailyDirectory, formatToday, "images"), "/web/product/big"},
+                {String.join("/", localDailyDirectory, formatToday, "images"), "/web/product/extra/excel"},
+                {String.join("/", localDailyDirectory, formatToday, "medium"), "/web/product/medium"},
+                {String.join("/", localDailyDirectory, formatToday, "small"), "/web/product/small"},
+                {String.join("/", localDailyDirectory, formatToday, "tiny"), "/web/product/tiny"},
         };
 
     }
+
+    public String[][] getTotalPathArray() {
+        return new String[][]{
+                {String.join("/", localImagesDirectory), "/web/product/big"},
+                {String.join("/", localImagesDirectory), "/web/product/extra/excel"},
+                {String.join("/", localDirectory, "images_resized", "medium"), "/web/product/medium"},
+                {String.join("/", localDirectory, "images_resized", "small"), "/web/product/small"},
+                {String.join("/", localDirectory, "images_resized", "tiny"), "/web/product/tiny"},
+        };
+
+    }
+
 
 }
