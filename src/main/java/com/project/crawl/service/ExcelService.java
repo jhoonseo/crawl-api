@@ -103,8 +103,9 @@ public class ExcelService {
                 // 모델명 11
                 dataRow.createCell(11).setCellValue(name.substring(0, Math.min(name.length(), 20)));
                 // 상품 요약설명 12
-                String summaryDescription = String.join("-", name, nameEn);
-                dataRow.createCell(12).setCellValue(summaryDescription);
+                String summaryDescription = String.join(" ", name, nameEn);
+                String subSummaryDescription = summaryDescription.substring(0, Math.min(summaryDescription.length(), 40));
+                dataRow.createCell(12).setCellValue(subSummaryDescription);
                 // 상품 간략설명 13
                 dataRow.createCell(13).setCellValue(summaryDescription);
                 // 상품 상세설명 14

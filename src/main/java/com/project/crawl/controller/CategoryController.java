@@ -38,8 +38,7 @@ public class CategoryController {
         List<Category> categoryList = categoryService.getCostcoCategoryList();
         // 2. 크롤링 데이터와 대조할 DB 데이터 가져오기
         List<Integer> dbCostcoProductCodeList = costcoProductService.getAllCostcoProductCodeList();
-        Set<Integer> updatedCostcoProductCodeSet = new HashSet<>();
-        Set<Integer> insertCostcoProductCodeSet = new HashSet<>();
+        Set<Integer> proccessedCostcoProductCodeSet = new HashSet<>();
         HashMap<Integer, CostcoProduct> insertCostcoProductMap = new HashMap<>();
 
         // WebDriver 설정
@@ -57,6 +56,7 @@ public class CategoryController {
                 Set<CostcoProduct> pageCostcoProductSet = crawlService.crawlFromCategory(driver, webDriverWait, categoryInfo);
                 Map<Integer, CostcoProduct> pageCostcoProductMap = pageCostcoProductSet.stream()
                         .collect(Collectors.toMap(CostcoProduct::getProductCode, Function.identity()));
+
                 crawledCostcoProductMap.putAll(pageCostcoProductMap);
 
                 // 총 크롤링 된 상품의 갯수를 구하기 위한 부분
@@ -74,18 +74,18 @@ public class CategoryController {
             // 4. check crawledCostcoProduct exists among costcoProductMap and check whether it needs UPDATE or INSERT
             crawledCostcoProductMap.forEach((crawledProductCode, crawledCostcoProduct) -> {
                 boolean isAlreadyInDB = dbCostcoProductCodeList.contains(crawledProductCode);
-                boolean isAlreadyProcessed = updatedCostcoProductCodeSet.contains(crawledProductCode) || insertCostcoProductCodeSet.contains(crawledProductCode);
+                boolean isAlreadyProcessed = proccessedCostcoProductCodeSet.contains(crawledProductCode);
                 if (isAlreadyInDB && !isAlreadyProcessed) {
                     // update 진행
                     costcoProductService.updateCostcoProduct(crawledCostcoProduct);
                     // updatedCodeSet 에 추가
-                    updatedCostcoProductCodeSet.add(crawledProductCode);
+                    proccessedCostcoProductCodeSet.add(crawledProductCode);
                 } else if (!isAlreadyInDB && !isAlreadyProcessed) {
-                    // insertMap 에 추가, crawledCostcoProduct 가 카테고리에 중복 존재할 수 있음
+                    // insertMap 에 추가, crawledCostcoProduct 가 crawledCostcoProductMap 에 중복 존재할 수 있음
                     insertCostcoProductMap.put(crawledProductCode, crawledCostcoProduct);
                     // dbCodeSet && insertCodeSet 에 추가
                     dbCostcoProductCodeList.add(crawledProductCode);
-                    insertCostcoProductCodeSet.add(crawledProductCode);
+                    proccessedCostcoProductCodeSet.add(crawledProductCode);
                 }
             });
         }
@@ -94,8 +94,7 @@ public class CategoryController {
         costcoProductService.insertCostcoProductCollection(insertCostcoProductMap.values());
 
         // dbSet - (updatedSet + insertSet) 은 disable (품절 상품은 카테고리에서 노출되지 않아, dbSet 에만 존재)
-        dbCostcoProductCodeList.removeAll(updatedCostcoProductCodeSet);
-        dbCostcoProductCodeList.removeAll(insertCostcoProductCodeSet);
+        dbCostcoProductCodeList.removeAll(proccessedCostcoProductCodeSet);
         // disable 진행
         costcoProductService.updateCostcoProductListStatus(dbCostcoProductCodeList, 0);
 

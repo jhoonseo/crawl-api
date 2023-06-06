@@ -416,7 +416,7 @@ public class CrawlService {
         return true;
     }
 
-    private void sleepMilliSec(Integer millis) {
+    public void sleepMilliSec(Integer millis) {
         try {
             Thread.sleep(millis); // 5초 동안 일시 정지
         } catch (InterruptedException e) {
