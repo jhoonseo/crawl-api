@@ -62,6 +62,14 @@ public class CommonUtil {
         return true;
     }
 
+    public String getTextOfClassFrom(String className, WebElement aFrom) {
+        try {
+            return aFrom.findElement(By.className(className)).getText();
+        } catch (NoSuchElementException e) {
+            return "";
+        }
+    }
+
     public Boolean checkTagFrom(String tagName, WebElement aFrom) {
         try {
             aFrom.findElement(By.tagName(tagName));

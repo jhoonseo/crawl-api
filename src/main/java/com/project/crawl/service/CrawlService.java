@@ -148,9 +148,8 @@ public class CrawlService {
                     .findElement(By.className("lister-name"))
                     .findElement(By.className("notranslate"))
                     .getText();
-            String nameEn = productItem
-                    .findElement(By.className("lister-name-en"))
-                    .getText();
+
+            String nameEn = commonUtil.getTextOfClassFrom("price-panel-login", productItem);
 
             costcoProduct.setNames(name, nameEn);
 
