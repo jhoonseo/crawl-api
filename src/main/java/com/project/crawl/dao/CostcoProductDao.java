@@ -137,7 +137,7 @@ public class CostcoProductDao {
             InsertValuesStep14<Record,
                 Object, Object, Object, Object, Object,
                 Object, Object, Object, Object, Object,
-                Object, Object, Object, Object> values = insertQuery.values(
+                Object, Object, Object, Object> values = (InsertValuesStep14<Record, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object>) insertQuery.values(
                     product.getProductCode(),
                     product.getCostcoCategoryIdx(),
                     product.getName(),
@@ -152,7 +152,7 @@ public class CostcoProductDao {
                     product.getMaxQty(),
                     product.getStatus(),
                     product.getUpdatedDateTime()
-            );
+            ).onDuplicateKeyIgnore();
             valuesList.add(values);
         });
 
