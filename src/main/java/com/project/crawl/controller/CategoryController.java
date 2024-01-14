@@ -97,7 +97,9 @@ public class CategoryController {
         }
 
         // insert 일괄 진행
-        costcoProductService.insertCostcoProductCollection(insertCostcoProductMap.values());
+        if (!insertCostcoProductMap.isEmpty()) {
+            costcoProductService.insertCostcoProductCollection(insertCostcoProductMap.values());
+        }
 
         dbCostcoProductCodeList = costcoProductService.getAllCostcoProductCodeList();
         // dbSet - (updatedSet + insertSet) 은 disable (품절 상품은 카테고리에서 노출되지 않아, dbSet 에만 존재)

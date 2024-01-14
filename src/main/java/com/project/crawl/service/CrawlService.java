@@ -99,11 +99,10 @@ public class CrawlService {
         driver.get(categoryInfo.getUrl());
         Set<CostcoProduct> costcoProductSet = new HashSet<>();
 
-        // 로딩 대기를 위해 3초 중단
-        sleepMilliSec(3000);
+        // 로딩 대기를 위해 5초 중단
+        sleepMilliSec(5000);
         if (!waitUntilTitleBool(webDriverWait, "코스트코 코리아")
                 || !waitUntilVisibilityByClassBool(webDriverWait, "breadcrumb-section")
-                || !waitUntilVisibilityByClassBool(webDriverWait, "d-block")
                 || !waitUntilPageLoad(webDriverWait)
         ) {
             return costcoProductSet;
