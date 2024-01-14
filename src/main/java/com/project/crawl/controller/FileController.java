@@ -119,5 +119,17 @@ public class FileController {
         }
     }
 
-
+    @PostMapping("/excel/unavailable/export")
+    public void exportUnavailableExcel(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
+    ) {
+        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        // 판매 불가능 상품 조회
+        List<C24CostcoProductXlsx> unavailableList = c24XlsxService.getEntireUnavailableC24CostcoProductXlsxList();
+        // 판매 불가능 상품 엑셀 만들기
+        List<C24CostcoProductChunk> unavailableChunks = excelService.divideList(unavailableList, 799);
+        for (C24CostcoProductChunk chunk : unavailableChunks) {
+            excelService.generateC24ProductExcels(chunk, formatToday, false, "costco");
+        }
+    }
 }

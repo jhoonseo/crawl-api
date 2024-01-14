@@ -95,7 +95,12 @@ public class C24CostcoProduct {
     }
 
     public String getThumbMainFilename() {
-        String[] splitPath = thumbMain.split("/");
-        return splitPath[splitPath.length - 1];
+        String[] splitPath;
+        if (thumbMain != null) {
+            splitPath = thumbMain.split("/");
+            return splitPath[splitPath.length - 1];
+        } else {
+            return "";
+        }
     }
 }
