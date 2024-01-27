@@ -8,3 +8,36 @@ src/main/java/com/project/crawl/service/BatchService.java
 src/main/java/com/project/crawl/controller/TestController.java
 .idea/*
 .gradle/*
+*.hprof
+
+# Java
+*.class
+*.jar
+
+# Maven
+target/
+
+# Gradle
+build/
+.gradle/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# NetBeans
+nbproject/
+build/
+
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
