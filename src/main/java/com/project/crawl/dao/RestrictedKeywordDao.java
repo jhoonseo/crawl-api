@@ -18,7 +18,7 @@ public class RestrictedKeywordDao {
 
     public List<String> getResetrictedKeywordList() {
         return context.select(field("keyword"))
-                .from(table("restricted_keyword"))
+                .from(table("restricted_keyword_costco"))
                 .where(field("status").eq(1))
                 .fetchInto(String.class);
     }

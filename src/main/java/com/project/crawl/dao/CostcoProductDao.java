@@ -32,7 +32,7 @@ public class CostcoProductDao {
                         field("is_sale"), field("is_option"), field("is_member_only"),
                         field("min_qty"), field("max_qty"),
                         field("status"), field("updated_date_time"))
-                .from(table("costco_product"))
+                .from(table("product_costco"))
                 .orderBy(field("product_code").asc())
                 .fetchStreamInto(CostcoProduct.class);
 
@@ -43,7 +43,7 @@ public class CostcoProductDao {
     public List<Integer> getAllCostcoProductCodeList() {
         return context
                 .select(field("product_code"))
-                .from(table("costco_product"))
+                .from(table("product_costco"))
                 .orderBy(field("product_code").asc())
                 .fetchInto(Integer.class);
     }
@@ -56,7 +56,7 @@ public class CostcoProductDao {
                         field("is_sale"), field("is_option"), field("is_member_only"),
                         field("min_qty"), field("max_qty"),
                         field("status"), field("updated_date_time"))
-                .from(table("costco_product"))
+                .from(table("product_costco"))
                 .where(
                         field("updated_date_time")
                                 .greaterOrEqual(Timestamp.valueOf(crawlDate.atStartOfDay()))
@@ -73,7 +73,7 @@ public class CostcoProductDao {
                         field("is_sale"), field("is_option"), field("is_member_only"),
                         field("min_qty"), field("max_qty"),
                         field("status"), field("updated_date_time"))
-                .from(table("costco_product"))
+                .from(table("product_costco"))
                 .where(
                         field("product_code").eq(productCode)
                 ).fetchOneInto(CostcoProduct.class);
@@ -82,14 +82,14 @@ public class CostcoProductDao {
     public Integer getCostcoProductIdxByProductCode(Integer productCode) {
         return context
                 .select(field("idx"))
-                .from(table("costco_product"))
+                .from(table("product_costco"))
                 .where(
                         field("product_code").eq(productCode)
                 ).fetchOneInto(Integer.class);
     }
 
     public void insertCostcoProduct(CostcoProduct costcoProduct) {
-        context.insertInto(table("costco_product"))
+        context.insertInto(table("product_costco"))
                 .columns(field("product_code"), field("costco_category_idx"),
                         field("name"), field("name_en"),
                         field("price"), field("sale_amount"), field("sale_period"),
@@ -108,7 +108,7 @@ public class CostcoProductDao {
     public void insertCostcoProductCollection(Collection<CostcoProduct> costcoProductCollection) {
         // Prepare the insert query
         InsertValuesStep14<Record, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object> insertQuery = context
-                .insertInto(table("costco_product"))
+                .insertInto(table("product_costco"))
                 .columns(
                         field("product_code"),
                         field("costco_category_idx"),
@@ -161,7 +161,7 @@ public class CostcoProductDao {
     }
 
     public void updateCostcoProductByIdx(Integer idx, CostcoProduct costcoProduct) {
-        context.update(table("costco_product"))
+        context.update(table("product_costco"))
                 .set(field("costco_category_idx"), costcoProduct.getCostcoCategoryIdx())
                 .set(field("name"), costcoProduct.getName())
                 .set(field("name_en"), costcoProduct.getNameEn())
@@ -180,7 +180,7 @@ public class CostcoProductDao {
     }
 
     public void updateCostcoProduct(CostcoProduct costcoProduct) {
-        context.update(table("costco_product"))
+        context.update(table("product_costco"))
                 .set(field("costco_category_idx"), costcoProduct.getCostcoCategoryIdx())
                 .set(field("name"), costcoProduct.getName())
                 .set(field("name_en"), costcoProduct.getNameEn())
@@ -199,21 +199,21 @@ public class CostcoProductDao {
     }
 
     public void updateCostcoProductListStatus(List<Integer> costcoProductCodeSet, Integer status) {
-        context.update(table("costco_product"))
+        context.update(table("product_costco"))
                 .set(field("status"), status)
                 .where(field("product_code").in(costcoProductCodeSet))
                 .execute();
     }
 
     public void updateCostcoProductStatus(Object productCode, Integer status) {
-        context.update(table("costco_product"))
+        context.update(table("product_costco"))
                 .set(field("status"), status)
                 .where(field("product_code").eq(productCode))
                 .execute();
     }
 
     public void updateCrawlDateTimeByIdx(Integer idx, String crawlDateTime) {
-        context.update(table("costco_product"))
+        context.update(table("product_costco"))
                 .set(field("updated_date_time"), crawlDateTime)
                 .where(field("idx").eq(idx))
                 .execute();

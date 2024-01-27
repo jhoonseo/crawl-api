@@ -47,9 +47,9 @@ public class C24XlsxDao {
                 field("c24.status").as("c24_status"),
                 field("c24c.c24_cate_no").as("c24_cate_no"),
                 field("c24c.name").as("category_name")
-        ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
-                .leftJoin(table("c24_category").as("c24c")).on(field("cp.costco_category_idx").eq(field("c24c.costco_category_idx")).and(field("c24c.status").eq(1)))
+        ).from(table("product_costco").as("cp"))
+                .leftJoin(table("c24_product_costco").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                .leftJoin(table("c24_category_costco").as("c24c")).on(field("cp.costco_category_idx").eq(field("c24c.costco_category_idx")).and(field("c24c.status").eq(1)))
                 .where(field("cp.status").eq(1).and(field("c24.status").eq(1)))
                 .fetchInto(C24CostcoProductXlsx.class);
     }
@@ -82,9 +82,9 @@ public class C24XlsxDao {
                         field("c24.status").as("c24_status"),
                         field("c24c.c24_cate_no").as("c24_cate_no"),
                         field("c24c.name").as("category_name")
-                ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
-                .leftJoin(table("c24_category").as("c24c")).on(field("cp.costco_category_idx").eq(field("c24c.costco_category_idx")).and(field("c24c.status").eq(1)))
+                ).from(table("product_costco").as("cp"))
+                .leftJoin(table("c24_product_costco").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                .leftJoin(table("c24_category_costco").as("c24c")).on(field("cp.costco_category_idx").eq(field("c24c.costco_category_idx")).and(field("c24c.status").eq(1)))
                 .where(field("cp.status").eq(0).or(field("c24.status").eq(0)))
                 .and(field("c24.c24_code").isNotNull())
                 .fetchStreamInto(C24CostcoProductXlsx.class);
@@ -120,9 +120,9 @@ public class C24XlsxDao {
                         field("c24.status").as("c24_status"),
                         field("c24c.c24_cate_no").as("c24_cate_no"),
                         field("c24c.name").as("category_name")
-                ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
-                .leftJoin(table("c24_category").as("c24c")).on(field("cp.costco_category_idx").eq(field("c24c.costco_category_idx")))
+                ).from(table("product_costco").as("cp"))
+                .leftJoin(table("c24_product_costco").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                .leftJoin(table("c24_category_costco").as("c24c")).on(field("cp.costco_category_idx").eq(field("c24c.costco_category_idx")))
                 .where(field("cp.status").notEqual(1).or(field("c24.status").notEqual(1)))
                 .and(field("c24.c24_code").isNotNull())
                 .fetchStreamInto(C24CostcoProductXlsx.class);
@@ -158,9 +158,9 @@ public class C24XlsxDao {
                         field("c24.status").as("c24_status"),
                         field("c24c.c24_cate_no").as("c24_cate_no"),
                         field("c24c.name").as("category_name")
-                ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
-                .leftJoin(table("c24_category").as("c24c")).on(field("cp.costco_category_idx").eq(field("c24c.costco_category_idx")).and(field("c24c.status").eq(1)))
+                ).from(table("product_costco").as("cp"))
+                .leftJoin(table("c24_product_costco").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                .leftJoin(table("c24_category_costco").as("c24c")).on(field("cp.costco_category_idx").eq(field("c24c.costco_category_idx")).and(field("c24c.status").eq(1)))
                 .fetchInto(C24CostcoProductXlsx.class);
     }
 }

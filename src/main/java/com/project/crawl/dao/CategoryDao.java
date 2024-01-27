@@ -19,7 +19,7 @@ public class CategoryDao {
     public List<String> getCostcoCategoryKeyList() {
         return context
                 .select(field("category"))
-                .from("costco_category")
+                .from("category_costco")
                 .where(field("status").eq(1))
                 .fetchInto(String.class);
     }
@@ -27,7 +27,7 @@ public class CategoryDao {
     public List<Category> getCostcoCategoryList() {
         return context
                 .select(field("idx"), field("category"))
-                .from("costco_category")
+                .from("category_costco")
                 .where(field("status").eq(1))
                 .fetchInto(Category.class);
     }
@@ -35,13 +35,13 @@ public class CategoryDao {
     public List<Category> getAllCostcoCategoryList() {
         return context
                 .select(field("idx"), field("category"))
-                .from("costco_category")
+                .from("category_costco")
                 .fetchInto(Category.class);
     }
 
 
     public int updateCostcoCategoryName(Category category) {
-        return context.update(table("costco_category"))
+        return context.update(table("category_costco"))
                 .set(field("name"), category.getName())
                 .where(field("idx").eq(category.getIdx()))
                 .execute();

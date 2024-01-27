@@ -50,8 +50,8 @@ public class C24ProductDao {
                 field("is_option"),
                 field("is_member_only"),
                 field("c24.status").as("c24_status")
-        ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+        ).from(table("product_costco").as("cp"))
+                .leftJoin(table("c24_product_costco").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
                 .where(field("cp.status").eq(1))
                 .orderBy(field("product_code").asc())
                 .fetchInto(C24CostcoProduct.class);
@@ -83,8 +83,8 @@ public class C24ProductDao {
                         field("is_option"),
                         field("is_member_only"),
                         field("c24.status").as("c24_status")
-                ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                ).from(table("product_costco").as("cp"))
+                .leftJoin(table("c24_product_costco").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
                 .orderBy(field("product_code").asc())
                 .fetchInto(C24CostcoProduct.class);
     }
@@ -116,8 +116,8 @@ public class C24ProductDao {
                         field("is_option"),
                         field("is_member_only"),
                         field("c24.status").as("c24_status")
-                ).from(table("costco_product").as("cp"))
-                .leftJoin(table("c24_product_test2").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
+                ).from(table("product_costco").as("cp"))
+                .leftJoin(table("c24_product_costco").as("c24")).on(field("cp.product_code").eq(field("c24.costco_product_code")))
                 .where(field("cp.status").eq(1).and(field("c24.status").eq(1)))
                 .orderBy(field("product_code").asc())
                 .fetchInto(C24CostcoProduct.class);
@@ -125,15 +125,15 @@ public class C24ProductDao {
 
     public String getLastC24Code() {
         return context.select(field("c24_code"))
-                .from(table("c24_product_test2"))
+                .from(table("c24_product_costco"))
                 .orderBy(field("c24_code").desc())
                 .limit(1)
                 .fetchOneInto(String.class);
     }
     public List<Integer> getDisablingIdxList() {
         return context.select(field("c24.idx"))
-                .from(table("c24_product_test2").as("c24"))
-                .leftJoin(table("costco_product").as("cp"))
+                .from(table("c24_product_costco").as("c24"))
+                .leftJoin(table("product_costco").as("cp"))
                 .on(field("c24.costco_product_code").eq("cp.product_code"))
                 .where(
                         field("c24.status").eq(1)
@@ -149,7 +149,7 @@ public class C24ProductDao {
                     field("thumb_main"),
                     field("thumb_extra"),
                     field("thumb_extra_filenames")
-                ).from(table("c24_product_test2"))
+                ).from(table("c24_product_costco"))
                 .fetchStreamInto(C24CostcoProduct.class);
         return a.collect(Collectors.toMap(C24CostcoProduct::getC24Idx, c24 -> c24));
     }
@@ -160,19 +160,19 @@ public class C24ProductDao {
                 field("thumb_detail"),
                 field("thumb_main"),
                 field("thumb_extra")
-        ).from(table("c24_product_test2"))
+        ).from(table("c24_product_costco"))
                 .fetchInto(C24CostcoProduct.class);
     }
 
     public void updateThumbDetailByIdx(Integer idx, String thumbDetail) {
-        context.update(table("c24_product_test2"))
+        context.update(table("c24_product_costco"))
                 .set(field("thumb_detail"), thumbDetail)
                 .where(field("idx").eq(idx))
                 .execute();
     }
 
     public void updateThumbsInfoByIdx(Integer idx, String thumbMain, String thumbExtra, String thumbExtraFilename, String thumbDetail) {
-        context.update(table("c24_product_test2"))
+        context.update(table("c24_product_costco"))
                 .set(field("thumb_main"), thumbMain)
                 .set(field("thumb_extra"), thumbExtra)
                 .set(field("thumb_extra_filenames"), thumbExtraFilename)
@@ -182,7 +182,7 @@ public class C24ProductDao {
     }
 
     public void updateThumbsInfoByProductCode(Integer productCode, String thumbMain, String thumbExtra, String thumbExtraFilename, String thumbDetail) {
-        context.update(table("c24_product_test2"))
+        context.update(table("c24_product_costco"))
                 .set(field("thumb_main"), thumbMain)
                 .set(field("thumb_extra"), thumbExtra)
                 .set(field("thumb_extra_filenames"), thumbExtraFilename)
@@ -193,7 +193,7 @@ public class C24ProductDao {
 
     public void updateC24Group(C24CostcoProductGroup c24Group) {
         C24CostcoProduct c24P = c24Group.getCommonC24CostcoProduct();
-        context.update(table("c24_product_test2"))
+        context.update(table("c24_product_costco"))
                 .set(field("thumb_main"), c24P.getThumbMain())
                 .set(field("thumb_extra"), c24P.getThumbExtra())
                 .set(field("thumb_extra_filenames"), c24P.getThumbExtraFilenames())
@@ -208,21 +208,21 @@ public class C24ProductDao {
     }
 
     public void updateStatusByProductCode(Integer productCode, Integer status) {
-        context.update(table("c24_product_test2"))
+        context.update(table("c24_product_costco"))
                 .set(field("status"), status)
                 .where(field("costco_product_code").eq(productCode))
                 .execute();
     }
 
     public void updateStatusByIdxList(List<Integer> idxList, Integer status) {
-        context.update(table("c24_product_test2"))
+        context.update(table("c24_product_costco"))
                 .set(field("status"), status)
                 .where(field("idx").in(idxList))
                 .execute();
     }
 
     public void insertC24Product(C24CostcoProduct c24P) {
-        context.insertInto(table("c24_product_test2"))
+        context.insertInto(table("c24_product_costco"))
                 .columns(
                         field("costco_product_code"),
                         field("c24_code"),
@@ -251,7 +251,7 @@ public class C24ProductDao {
     }
 
     public void deleteC24ProductByC24CodeCollection(Collection collection) {
-        context.deleteFrom(table("c24_product_test2"))
+        context.deleteFrom(table("c24_product_costco"))
                 .where(field("c24_code").in(collection))
                 .execute();
     }
