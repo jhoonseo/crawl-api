@@ -19,27 +19,27 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 public class FtpService {
-    @Value("${ftp.address}")
-    private String ftpAddress;
+    @Value("${ftp.address.costco}")
+    private String ftpAddressCostco;
     @Value("${ftp.port.number}")
     private Integer ftpPortNumber;
-    @Value("${ftp.login.id}")
-    private String ftpLoginId;
-    @Value("${ftp.login.pw}")
-    private String ftpLoginPw;
-    @Value("${local.directory}")
-    private String localDirectory;
-    @Value("${local.daily.directory}")
-    private String localDailyDirectory;
-    @Value("${local.images.directory}")
-    private String localImagesDirectory;
+    @Value("${ftp.login.id.costco}")
+    private String ftpLoginIdCostco;
+    @Value("${ftp.login.pw.costco}")
+    private String ftpLoginPwCostco;
+    @Value("${local.directory.costco}")
+    private String localDirectoryCostco;
+    @Value("${local.daily.directory.costco}")
+    private String localDailyDirectoryCostco;
+    @Value("${local.images.directory.costco}")
+    private String localImagesDirectoryCostco;
     private FTPClient ftp;
     private final CommonUtil commonUtil;
 
     public void connectFtp() throws IOException {
         ftp = new FTPClient();
-        ftp.connect(ftpAddress, ftpPortNumber);
-        ftp.login(ftpLoginId, ftpLoginPw);
+        ftp.connect(ftpAddressCostco, ftpPortNumber);
+        ftp.login(ftpLoginIdCostco, ftpLoginPwCostco);
     }
 
     public void quitFtp() throws IOException {
@@ -79,22 +79,22 @@ public class FtpService {
 
     public String[][] getPathArray(String formatToday) {
         return new String[][]{
-                {String.join("/", localDailyDirectory, formatToday, "images"), "/web/product/big"},
-                {String.join("/", localDailyDirectory, formatToday, "images"), "/web/product/extra/excel"},
-                {String.join("/", localDailyDirectory, formatToday, "medium"), "/web/product/medium"},
-                {String.join("/", localDailyDirectory, formatToday, "small"), "/web/product/small"},
-                {String.join("/", localDailyDirectory, formatToday, "tiny"), "/web/product/tiny"},
+                {String.join("/", localDailyDirectoryCostco, formatToday, "images"), "/web/product/big"},
+                {String.join("/", localDailyDirectoryCostco, formatToday, "images"), "/web/product/extra/excel"},
+                {String.join("/", localDailyDirectoryCostco, formatToday, "medium"), "/web/product/medium"},
+                {String.join("/", localDailyDirectoryCostco, formatToday, "small"), "/web/product/small"},
+                {String.join("/", localDailyDirectoryCostco, formatToday, "tiny"), "/web/product/tiny"},
         };
 
     }
 
     public String[][] getTotalPathArray() {
         return new String[][]{
-                {String.join("/", localImagesDirectory), "/web/product/big"},
-                {String.join("/", localImagesDirectory), "/web/product/extra/excel"},
-                {String.join("/", localDirectory, "images_resized", "medium"), "/web/product/medium"},
-                {String.join("/", localDirectory, "images_resized", "small"), "/web/product/small"},
-                {String.join("/", localDirectory, "images_resized", "tiny"), "/web/product/tiny"},
+                {String.join("/", localImagesDirectoryCostco), "/web/product/big"},
+                {String.join("/", localImagesDirectoryCostco), "/web/product/extra/excel"},
+                {String.join("/", localDirectoryCostco, "images_resized", "medium"), "/web/product/medium"},
+                {String.join("/", localDirectoryCostco, "images_resized", "small"), "/web/product/small"},
+                {String.join("/", localDirectoryCostco, "images_resized", "tiny"), "/web/product/tiny"},
         };
 
     }

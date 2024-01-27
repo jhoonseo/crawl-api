@@ -23,14 +23,14 @@ import java.util.stream.Stream;
 @Slf4j
 @RequiredArgsConstructor
 public class ResizeService {
-    @Value("${local.directory}")
-    private String localDirectory;
+    @Value("${local.directory.costco}")
+    private String localDirectoryCostco;
 
     private final ImageUtil imageUtil;
     private final CommonUtil commonUtil;
 
     public List<String> resizeEntireDirectoryImages(String formatToday) throws IOException {
-        String imagesDirectory = String.join("/", localDirectory, "images");
+        String imagesDirectory = String.join("/", localDirectoryCostco, "images");
         File[] files = new File(imagesDirectory).listFiles();
         List<String> exceptList = new ArrayList<>();
 
@@ -52,7 +52,7 @@ public class ResizeService {
         };
 
         commonUtil.generateDirectories(Stream.concat(Arrays.stream(resizedDirectories), Arrays.stream(dailyDirectories))
-                .map(path -> Path.of(localDirectory, path))
+                .map(path -> Path.of(localDirectoryCostco, path))
                 .toArray(Path[]::new));
 
         for (File file : files) {
@@ -63,11 +63,11 @@ public class ResizeService {
 
                     BufferedImage img300 = imageUtil.resizeImage(originalImage, 300, 300);
                     Stream.of(dailyDirectories[0], resizedDirectories[1], dailyDirectories[2], resizedDirectories[3])
-                            .forEach(directory -> imageUtil.writeImage(img300, Path.of(localDirectory, directory, fileName)));
+                            .forEach(directory -> imageUtil.writeImage(img300, Path.of(localDirectoryCostco, directory, fileName)));
 
                     BufferedImage img500 = imageUtil.resizeImage(originalImage, 500, 500);
                     Stream.of(resizedDirectories[2], dailyDirectories[1])
-                            .forEach(directory -> imageUtil.writeImage(img500, Path.of(localDirectory, directory, fileName)));
+                            .forEach(directory -> imageUtil.writeImage(img500, Path.of(localDirectoryCostco, directory, fileName)));
                 } catch (Exception e) {
                     if (e instanceof FileNotFoundException) {
                         // CrawlException.Type.FORBIDDEN 일 경우, 그대로 throw
@@ -82,7 +82,7 @@ public class ResizeService {
     }
 
     public List<String> resizeDailyDirectoryImages(String formatToday) throws IOException {
-        String dailyImagesDirectory = String.join("/", localDirectory, "daily", formatToday, "images");
+        String dailyImagesDirectory = String.join("/", localDirectoryCostco, "daily", formatToday, "images");
         File[] files = new File(dailyImagesDirectory).listFiles();
         List<String> exceptList = new ArrayList<>();
 
@@ -108,7 +108,7 @@ public class ResizeService {
         };
 
         commonUtil.generateDirectories(Stream.concat(Arrays.stream(resizedDirectories), Arrays.stream(dailyDirectories))
-                .map(path -> Path.of(localDirectory, path))
+                .map(path -> Path.of(localDirectoryCostco, path))
                 .toArray(Path[]::new));
 
         for (File file : fileSet) {
@@ -120,12 +120,12 @@ public class ResizeService {
                 if (!commonUtil.fileExists(resizedDirectories[1], fileName)) {
                     BufferedImage img300 = imageUtil.resizeImage(img, 300, 300);
                     Stream.of(dailyDirectories[0], resizedDirectories[1], dailyDirectories[2], resizedDirectories[3])
-                            .forEach(directory -> imageUtil.writeImage(img300, Path.of(localDirectory, directory, fileName)));
+                            .forEach(directory -> imageUtil.writeImage(img300, Path.of(localDirectoryCostco, directory, fileName)));
                 }
                 if (!commonUtil.fileExists(resizedDirectories[2], fileName)) {
                     BufferedImage img500 = imageUtil.resizeImage(img, 500, 500);
                     Stream.of(resizedDirectories[2], dailyDirectories[1])
-                            .forEach(directory -> imageUtil.writeImage(img500, Path.of(localDirectory, directory, fileName)));
+                            .forEach(directory -> imageUtil.writeImage(img500, Path.of(localDirectoryCostco, directory, fileName)));
                 }
             } catch (Exception e) {
                 if (e instanceof FileNotFoundException) {

@@ -22,16 +22,16 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 public class S3Service {
-    @Value("${s3.bucket.name}")
-    private String s3BucketName;
+    @Value("${s3.bucket.name.costco}")
+    private String s3BucketNameCostco;
     @Value("${s3.images.object}")
     private String s3ImagesObject;
-    @Value("${local.directory}")
-    private String localDirectory;
-    @Value("${local.daily.directory}")
-    private String localDailyDirectory;
-    @Value("${local.images.directory}")
-    private String localImagesDirectory;
+    @Value("${local.directory.costco}")
+    private String localDirectoryCostco;
+    @Value("${local.daily.directory.costco}")
+    private String localDailyDirectoryCostco;
+    @Value("${local.images.directory.costco}")
+    private String localImagesDirectoryCostco;
     @Value("${aws.access.key.id}")
     private String awsAccessKeyId;
     @Value("${aws.secret.access.key}")
@@ -49,7 +49,7 @@ public class S3Service {
     }
 
     public void uploadDirectoryFilesPublic(String path) {
-        File directory = new File(String.join("/", localDirectory, path));
+        File directory = new File(String.join("/", localDirectoryCostco, path));
         if (!directory.exists())
             return;
 
@@ -70,7 +70,7 @@ public class S3Service {
     }
     public void uploadS3Public(S3Client s3Client, String filePath, String object) {
         PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(s3BucketName)
+                .bucket(s3BucketNameCostco)
                 .key(object)
                 .acl(ObjectCannedACL.PUBLIC_READ)
                 .build();
@@ -82,7 +82,7 @@ public class S3Service {
 
     public void uploadS3Private(S3Client s3Client, String filePath, String object) {
         PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(s3BucketName)
+                .bucket(s3BucketNameCostco)
                 .key(object)
                 .acl(ObjectCannedACL.PRIVATE)
                 .build();

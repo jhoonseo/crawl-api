@@ -33,8 +33,8 @@ public class CrawlService {
     private String webDriverId;
     @Value("${web.driver.path:}")
     private String webDriverPath;
-    @Value("${cdn.base.url:}")
-    private String cdnBaseUrl;
+    @Value("${cdn.base.url.costco:}")
+    private String cdnBaseUrlCostco;
 
 
     private boolean waitUntilPresenceOfNestedAllByClass(WebDriverWait webDriverWait, String className, By byChild) {
@@ -369,7 +369,7 @@ public class CrawlService {
             for (int i = 0; i < thumbUrlList.size(); i++) {
                 String thumbUrl = thumbUrlList.get(i);
                 String thumbFilename = thumbUrl.split("/")[thumbUrl.split("/").length - 1];
-                String src = String.join("/", cdnBaseUrl, thumbFilename);
+                String src = String.join("/", cdnBaseUrlCostco, thumbFilename);
                 thumbDetailInfo.append("<img src='").append(src)
                         .append("' style='width: 100%; margin-bottom:60px;'/>\n ");
             }

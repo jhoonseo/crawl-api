@@ -3,7 +3,6 @@ package com.project.crawl.controller;
 import com.project.crawl.controller.dto.*;
 import com.project.crawl.exceptions.CrawlException;
 import com.project.crawl.service.C24ProductService;
-import com.project.crawl.service.C24ProductService1688;
 import com.project.crawl.service.CostcoProductService;
 import com.project.crawl.service.CrawlService;
 import com.project.crawl.util.CommonUtil;
@@ -25,23 +24,13 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("/api/crawl/product")
-@Tag(name = "코스트코&1688 상품상세 크롤링")
-public class ProductController {
+@Tag(name = "코스트코 상품상세 크롤링")
+public class ProductCostcoController {
     private final CostcoProductService costcoProductService;
     private final CrawlService crawlService;
     private final C24ProductService c24ProductService;
-    private final C24ProductService1688 c24ProductService1688;
     private final CommonUtil commonUtil;
 
-    @PostMapping("/renew")
-    public void renewProduct1688Test(
-            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today,
-            @RequestParam("productCode") Integer productCode
-    ) {
-        List<C241688Product> c241688ProductList = c24ProductService1688.getAvailableC241688ProductList();
-
-
-    }
     @PostMapping("/renew")
     public void renewProduct(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today

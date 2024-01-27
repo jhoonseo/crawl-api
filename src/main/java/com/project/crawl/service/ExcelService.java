@@ -22,8 +22,8 @@ import java.util.Random;
 @Slf4j
 public class ExcelService {
 
-    @Value("${local.daily.directory}")
-    private String localDailyDirectory;
+    @Value("${local.daily.directory.costco}")
+    private String localDailyDirectoryCostco;
 
     private final CommonUtil commonUtil;
 
@@ -281,7 +281,7 @@ public class ExcelService {
 
 
             // 일자별 경로 생성
-            String dailyXlsxDirectory = String.join("/", localDailyDirectory, formatToday, "xlsx");
+            String dailyXlsxDirectory = String.join("/", localDailyDirectoryCostco, formatToday, "xlsx");
             commonUtil.createDirectory(dailyXlsxDirectory);
             // 파일로 저장
             String fileName = type + '_' + chunk.getStartIndex() + '-' + chunk.getEndIndex() + '_'+ LocalTime.now() + '-' + availability + ".xlsx";

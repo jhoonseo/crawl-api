@@ -34,14 +34,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CommonUtil {
 
-    @Value("${local.directory}")
-    private String localDirectory;
+    @Value("${local.directory.costco}")
+    private String localDirectoryCostco;
 
-    @Value("${local.images.directory}")
-    private String localImagesDirectory;
+    @Value("${local.images.directory.costco}")
+    private String localImagesDirectoryCostco;
 
-    @Value("${local.daily.directory}")
-    private String localDailyDirectory;
+    @Value("${local.daily.directory.costco}")
+    private String localDailyDirectoryCostco;
 
     public Boolean checkClassExist(String className, WebDriver driver) {
         try {
@@ -148,10 +148,10 @@ public class CommonUtil {
     }
 
     public void generateDailyDirectories(String formatToday) throws IOException {
-        String dailyToday = String.join("/", localDailyDirectory, formatToday);
-        String dailyTodayImages = String.join("/", localDailyDirectory, formatToday, "images");
+        String dailyToday = String.join("/", localDailyDirectoryCostco, formatToday);
+        String dailyTodayImages = String.join("/", localDailyDirectoryCostco, formatToday, "images");
 
-        generateDirectories(localDirectory, localImagesDirectory, localDailyDirectory, localDailyDirectory, dailyToday, dailyTodayImages);
+        generateDirectories(localDirectoryCostco, localImagesDirectoryCostco, localDailyDirectoryCostco, localDailyDirectoryCostco, dailyToday, dailyTodayImages);
     }
 
     public boolean isImageDownloaded(String imageUrl, String formatToday) {
@@ -160,14 +160,14 @@ public class CommonUtil {
     }
 
     public boolean isImageDownloaded(String imageUrl, String fileName, String formatToday) {
-        Path filePath = Path.of(localImagesDirectory, fileName);
+        Path filePath = Path.of(localImagesDirectoryCostco, fileName);
         if (Files.exists(filePath)) {
             // 이미 파일이 존재하므로 다운로드 또는 복사하지 않고 넘어감
             return true;
         }
         InputStream in;
         try {
-            Path dailyImagesPath = Path.of(String.join("/", localDailyDirectory, formatToday, "images", fileName));
+            Path dailyImagesPath = Path.of(String.join("/", localDailyDirectoryCostco, formatToday, "images", fileName));
             URL url = new URL(imageUrl);
             in = new BufferedInputStream(url.openStream());
             Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
@@ -182,11 +182,11 @@ public class CommonUtil {
 
     public boolean downloadImage(String imageUrl, String formatToday) {
         String fileName = imageUrl.split("/")[imageUrl.split("/").length - 1];
-        Path filePath = Path.of(localImagesDirectory, fileName);
+        Path filePath = Path.of(localImagesDirectoryCostco, fileName);
 
         InputStream in;
         try {
-            Path dailyImagesPath = Path.of(String.join("/", localDailyDirectory, formatToday, "images", fileName));
+            Path dailyImagesPath = Path.of(String.join("/", localDailyDirectoryCostco, formatToday, "images", fileName));
             URL url = new URL(imageUrl);
             in = new BufferedInputStream(url.openStream());
             Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
