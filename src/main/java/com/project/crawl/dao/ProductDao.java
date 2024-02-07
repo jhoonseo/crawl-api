@@ -21,7 +21,7 @@ import static org.jooq.impl.DSL.table;
 @RequiredArgsConstructor
 @Repository
 @Slf4j
-public class CostcoProductDao {
+public class ProductDao {
     private final DSLContext context;
 
     public Map<Integer, CostcoProduct> getAllCostcoProductMap() {
@@ -126,13 +126,13 @@ public class CostcoProductDao {
                         field("updated_date_time")
                 );
 
-        // Create a list of values to be inserted
+        // Create a list of propValues to be inserted
         List<InsertValuesStep14<Record,
             Object, Object, Object, Object, Object,
             Object, Object, Object, Object, Object,
             Object, Object, Object, Object>> valuesList = new ArrayList<>();
 
-        // Add values for each CostcoProduct in the set
+        // Add propValues for each CostcoProduct in the set
         costcoProductCollection.forEach(product -> {
             InsertValuesStep14<Record,
                 Object, Object, Object, Object, Object,

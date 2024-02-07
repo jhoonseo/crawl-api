@@ -7,8 +7,8 @@ import java.util.List;
 
 @Slf4j
 @Data
-public class C24CostcoProductChunk {
-    private List<C24CostcoProductXlsx> c24CostcoProductList;
+public class C24ProductChunk {
+    private List<C24ProductXlsx> c24CostcoProductList;
     private Integer startIndex;
     private Integer endIndex;
 }

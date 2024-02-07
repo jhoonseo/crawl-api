@@ -10,5 +10,5 @@ import java.util.List;
 public class C24ProductThumb {
     private List<String> thumbUrlList;
     private boolean isRequiredUpdate = false;
-    private C24CostcoProduct commonC24CostcoProduct = new C24CostcoProduct();
+    private C24Product commonC24Product = new C24Product();
 }

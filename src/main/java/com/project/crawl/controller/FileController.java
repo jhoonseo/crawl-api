@@ -1,8 +1,7 @@
 package com.project.crawl.controller;
 
-import com.project.crawl.controller.dto.C24CostcoProduct;
-import com.project.crawl.controller.dto.C24CostcoProductChunk;
-import com.project.crawl.controller.dto.C24CostcoProductXlsx;
+import com.project.crawl.controller.dto.C24ProductChunk;
+import com.project.crawl.controller.dto.C24ProductXlsx;
 import com.project.crawl.service.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -85,15 +83,15 @@ public class FileController {
     ) {
         String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
         // 판매 가능 상품 조회
-        List<C24CostcoProductXlsx> availableList = c24XlsxService.getAvailableC24CostcoProductXlsxList();
+        List<C24ProductXlsx> availableList = c24XlsxService.getAvailableC24CostcoProductXlsxList();
         // 판매 불가능 상품 조회
-        List<C24CostcoProductXlsx> unavailableList = c24XlsxService.getUnavailableC24CostcoProductXlsxList();
+        List<C24ProductXlsx> unavailableList = c24XlsxService.getUnavailableC24CostcoProductXlsxList();
         // restricted keywords 가져오기
         List<String> restrictedKeywordList = restrictedKeywordService.getResetrictedKeywordList();
         // 판매 가능 상품 중, restricted keyword filter 하여 판매 불가능 상품에 추가
-        Iterator<C24CostcoProductXlsx> iterator = availableList.iterator();
+        Iterator<C24ProductXlsx> iterator = availableList.iterator();
         while (iterator.hasNext()) {
-            C24CostcoProductXlsx product = iterator.next();
+            C24ProductXlsx product = iterator.next();
             String productName = product.getName();
 
             // restricted keyword filter
@@ -107,14 +105,20 @@ public class FileController {
         }
 
         // 판매 가능 상품 엑셀 만들기
-        List<C24CostcoProductChunk> availableChunks = excelService.divideList(availableList, 799);
-        for (C24CostcoProductChunk chunk : availableChunks) {
+        List<C24ProductChunk> availableChunks = excelService.divideList(availableList, 799);
+        for (C24ProductChunk chunk : availableChunks) {
             excelService.generateC24ProductExcels(chunk, formatToday, true, "costco");
         }
 
+        // todo : 24.01.30 판매불가능 상품 엑셀에서 아래의 상품들 누락 이슈
+        //P000BKIW 동원 명품혼합 V10 x 4
+        //P000BCEY AMT 샤프 시리즈 스테인리스 양수웍 20cm
+        //P000BLDB 백종원의 빽햄 선물세트 x 4세트
+        //P000BLCZ 백종원의 빽햄 세트 200g x 9개
+        //품절되었습니다. 카페 24에서 판매안함 진열안함 처리하였습니다
         // 판매 불가능 상품 엑셀 만들기
-        List<C24CostcoProductChunk> unavailableChunks = excelService.divideList(unavailableList, 799);
-        for (C24CostcoProductChunk chunk : unavailableChunks) {
+        List<C24ProductChunk> unavailableChunks = excelService.divideList(unavailableList, 799);
+        for (C24ProductChunk chunk : unavailableChunks) {
             excelService.generateC24ProductExcels(chunk, formatToday, false, "costco");
         }
     }
@@ -125,10 +129,10 @@ public class FileController {
     ) {
         String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
         // 판매 불가능 상품 조회
-        List<C24CostcoProductXlsx> unavailableList = c24XlsxService.getEntireUnavailableC24CostcoProductXlsxList();
+        List<C24ProductXlsx> unavailableList = c24XlsxService.getEntireUnavailableC24CostcoProductXlsxList();
         // 판매 불가능 상품 엑셀 만들기
-        List<C24CostcoProductChunk> unavailableChunks = excelService.divideList(unavailableList, 799);
-        for (C24CostcoProductChunk chunk : unavailableChunks) {
+        List<C24ProductChunk> unavailableChunks = excelService.divideList(unavailableList, 799);
+        for (C24ProductChunk chunk : unavailableChunks) {
             excelService.generateC24ProductExcels(chunk, formatToday, false, "costco");
         }
     }

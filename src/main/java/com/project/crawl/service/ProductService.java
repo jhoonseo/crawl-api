@@ -1,6 +1,6 @@
 package com.project.crawl.service;
 import com.project.crawl.controller.dto.CostcoProduct;
-import com.project.crawl.dao.CostcoProductDao;
+import com.project.crawl.dao.ProductDao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,8 +9,8 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class CostcoProductService {
-    private final CostcoProductDao costcoProductDao;
+public class ProductService {
+    private final ProductDao productDao;
 
     public LocalDate checkParams(LocalDate crawlDate) {
         if (Objects.isNull(crawlDate)) {
@@ -21,43 +21,43 @@ public class CostcoProductService {
     }
 
     public Map<Integer, CostcoProduct> getAllCostcoProductMap() {
-        return costcoProductDao.getAllCostcoProductMap();
+        return productDao.getAllCostcoProductMap();
     }
 
     public List<Integer> getAllCostcoProductCodeList() {
-        return costcoProductDao.getAllCostcoProductCodeList();
+        return productDao.getAllCostcoProductCodeList();
     }
 
     public List<CostcoProduct> getCostcoProductListAfterDate(LocalDate crawlDate) {
-        return costcoProductDao.getCostcoProductListAfterDate(crawlDate);
+        return productDao.getCostcoProductListAfterDate(crawlDate);
     }
 
     public CostcoProduct getCostcoProductByProductCode(Integer productCode) {
-        return costcoProductDao.getCostcoProductByProductCode(productCode);
+        return productDao.getCostcoProductByProductCode(productCode);
     }
 
     public Integer getCostcoProductIdxByProductCode(Integer productCode) {
-        return costcoProductDao.getCostcoProductIdxByProductCode(productCode);
+        return productDao.getCostcoProductIdxByProductCode(productCode);
     }
 
     public void updateCostcoProduct(CostcoProduct costcoProduct) {
-        costcoProductDao.updateCostcoProduct(costcoProduct);
+        productDao.updateCostcoProduct(costcoProduct);
     }
 
     public void updateCostcoProductListStatus(List<Integer> costcoProductCodeSet, Integer status) {
-        costcoProductDao.updateCostcoProductListStatus(costcoProductCodeSet, status);
+        productDao.updateCostcoProductListStatus(costcoProductCodeSet, status);
     }
 
     public void updateCostcoProductStatus(Object productCode, Integer status) {
-        costcoProductDao.updateCostcoProductStatus(productCode, status);
+        productDao.updateCostcoProductStatus(productCode, status);
     }
 
     public void insertCostcoProduct(CostcoProduct costcoProduct) {
-        costcoProductDao.insertCostcoProduct(costcoProduct);
+        productDao.insertCostcoProduct(costcoProduct);
     }
 
     public void insertCostcoProductCollection(Collection<CostcoProduct> costcoProductCollection) {
-        costcoProductDao.insertCostcoProductCollection(costcoProductCollection);
+        productDao.insertCostcoProductCollection(costcoProductCollection);
     }
 
 }

@@ -4,7 +4,7 @@ import com.project.crawl.controller.dto.Category;
 import com.project.crawl.controller.dto.CategoryInfo;
 import com.project.crawl.controller.dto.CostcoProduct;
 import com.project.crawl.service.CategoryService;
-import com.project.crawl.service.CostcoProductService;
+import com.project.crawl.service.ProductService;
 import com.project.crawl.service.CrawlService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Tag(name = "코스트코 카테고리 크롤링")
 public class CategoryController {
     private final CategoryService categoryService;
-    private final CostcoProductService costcoProductService;
+    private final ProductService productService;
     private final CrawlService crawlService;
 
     @GetMapping("/renew")
@@ -37,7 +37,7 @@ public class CategoryController {
         // 1. 카테고리 불러오기
         List<Category> categoryList = categoryService.getCostcoCategoryList();
         // 2. 크롤링 데이터와 대조할 DB 데이터 가져오기
-        List<Integer> dbCostcoProductCodeList = costcoProductService.getAllCostcoProductCodeList();
+        List<Integer> dbCostcoProductCodeList = productService.getAllCostcoProductCodeList();
         Set<Integer> processedCostcoProductCodeSet = new HashSet<>();
         HashMap<Integer, CostcoProduct> insertCostcoProductMap = new HashMap<>();
 
@@ -80,7 +80,7 @@ public class CategoryController {
                 boolean isAlreadyProcessed = processedCostcoProductCodeSet.contains(crawledProductCode);
                 if (isAlreadyInDB && !isAlreadyProcessed) {
                     // update 진행
-                    costcoProductService.updateCostcoProduct(crawledCostcoProduct);
+                    productService.updateCostcoProduct(crawledCostcoProduct);
                     // processedCostcoProductCodeSet 에 추가
                     processedCostcoProductCodeSet.add(crawledProductCode);
                 } else if (!isAlreadyInDB && !isAlreadyProcessed) {
@@ -98,14 +98,14 @@ public class CategoryController {
 
         // insert 일괄 진행
         if (!insertCostcoProductMap.isEmpty()) {
-            costcoProductService.insertCostcoProductCollection(insertCostcoProductMap.values());
+            productService.insertCostcoProductCollection(insertCostcoProductMap.values());
         }
 
-        dbCostcoProductCodeList = costcoProductService.getAllCostcoProductCodeList();
+        dbCostcoProductCodeList = productService.getAllCostcoProductCodeList();
         // dbSet - (updatedSet + insertSet) 은 disable (품절 상품은 카테고리에서 노출되지 않아, dbSet 에만 존재)
         dbCostcoProductCodeList.removeAll(processedCostcoProductCodeSet);
         // disable 진행
-        costcoProductService.updateCostcoProductListStatus(dbCostcoProductCodeList, 0);
+        productService.updateCostcoProductListStatus(dbCostcoProductCodeList, 0);
 
         driver.quit();
         return "renewed costco_product count is : " + totalProductItems;

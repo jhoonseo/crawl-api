@@ -1,7 +1,7 @@
 package com.project.crawl.service;
 
-import com.project.crawl.controller.dto.C24CostcoProductChunk;
-import com.project.crawl.controller.dto.C24CostcoProductXlsx;
+import com.project.crawl.controller.dto.C24ProductChunk;
+import com.project.crawl.controller.dto.C24ProductXlsx;
 import com.project.crawl.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,26 +34,26 @@ public class ExcelService {
         }
     }
 
-    public List<C24CostcoProductChunk> divideList(List<C24CostcoProductXlsx> originalList, int chunkSize) {
-        List<C24CostcoProductChunk> dividedLists = new ArrayList<>();
+    public List<C24ProductChunk> divideList(List<C24ProductXlsx> originalList, int chunkSize) {
+        List<C24ProductChunk> dividedLists = new ArrayList<>();
         int originalSize = originalList.size();
         for (int i = 0; i < originalSize; i += chunkSize) {
-            C24CostcoProductChunk c24CostcoProductChunk = new C24CostcoProductChunk();
+            C24ProductChunk c24ProductChunk = new C24ProductChunk();
             int endIndex = Math.min(i + chunkSize, originalSize);
-            List<C24CostcoProductXlsx> chunk = originalList.subList(i, endIndex);
-            c24CostcoProductChunk.setC24CostcoProductList(chunk);
-            c24CostcoProductChunk.setStartIndex(i + 1);
-            c24CostcoProductChunk.setEndIndex(endIndex);
-            dividedLists.add(c24CostcoProductChunk);
+            List<C24ProductXlsx> chunk = originalList.subList(i, endIndex);
+            c24ProductChunk.setC24CostcoProductList(chunk);
+            c24ProductChunk.setStartIndex(i + 1);
+            c24ProductChunk.setEndIndex(endIndex);
+            dividedLists.add(c24ProductChunk);
         }
         return dividedLists;
     }
 
-    public void generateC24ProductExcels(C24CostcoProductChunk chunk, String formatToday, boolean isAvailable, String type) {
+    public void generateC24ProductExcels(C24ProductChunk chunk, String formatToday, boolean isAvailable, String type) {
         // 엑셀 워크북 생성
         try (Workbook workbook = new XSSFWorkbook()) {
             // 시트 생성
-            Sheet sheet = workbook.createSheet("Data");
+            Sheet sheet = workbook.createSheet("SearchData");
 
             // 헤더 설정
             setC24ProductHeader(sheet);
@@ -68,11 +68,11 @@ public class ExcelService {
             String defaultDescription = "상세 참조";
             // 데이터 행 생성
             int rowNum = 1;
-            for (C24CostcoProductXlsx c24CostcoProductXlsx : chunk.getC24CostcoProductList()) {
+            for (C24ProductXlsx c24CostcoProductXlsx : chunk.getC24CostcoProductList()) {
                 Row dataRow = sheet.createRow(rowNum++);
                 String manageName = "cos-" + c24CostcoProductXlsx.getProductCode();
                 String name = c24CostcoProductXlsx.getName();
-                String qtyName = c24CostcoProductXlsx.getQtyName();
+                String qtyName = c24CostcoProductXlsx.getQtyNameCostco();
                 String nameEn = c24CostcoProductXlsx.getNameEn();
                 int price = c24CostcoProductXlsx.getQtyPrice();
                 String categoryName = c24CostcoProductXlsx.getCategoryName();
@@ -116,7 +116,7 @@ public class ExcelService {
                         c24CostcoProductXlsx.getDeliveryInfo(),
                         c24CostcoProductXlsx.getRefundInfo(),
                         defaultBottomNotice);
-                dataRow.createCell(14).setCellValue(detail);
+                dataRow.createCell(14).setCellValue("<p align=\"center\">" + detail + "</p>");
                 // 모바일 상품 상세설명 설정 15
                 dataRow.createCell(15).setCellValue("A");
                 // 모바일 상품 상세설명 16

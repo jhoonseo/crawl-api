@@ -7,10 +7,10 @@ import java.util.Objects;
 
 @Slf4j
 @Data
-public class C24CostcoProduct {
+public class C24Product {
     private int cpIdx; // must
     private int c24Idx; // must
-    private int productCode; // not null
+    private long productCode; // not null
     private String name; // must
     private String nameEn; // must
     private int minQty = 0;
@@ -42,7 +42,7 @@ public class C24CostcoProduct {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        C24CostcoProduct that = (C24CostcoProduct) o;
+        C24Product that = (C24Product) o;
         return productCode == that.productCode &&
                 Objects.equals(name, that.name) &&
                 Objects.equals(nameEn, that.nameEn) &&
@@ -70,7 +70,7 @@ public class C24CostcoProduct {
         return price;
     }
 
-    public String getQtyName() {
+    public String getQtyNameCostco() {
         if (minQty > 1 && name.contains("최소구매 ")) {
             return name.replace("최소구매 ", "") + "세트";
         } else if (minQty > 1 && name.contains("최소구매")) {
@@ -90,8 +90,12 @@ public class C24CostcoProduct {
         return !Objects.isNull(value) && !value.isEmpty();
     }
 
-    public String getProductUrl() {
+    public String getProductUrlCostco() {
         return "https://www.costco.co.kr/p/" + productCode;
+    }
+
+    public String getProductUrl1688() {
+        return "https://detail.1688.com/offer/" + productCode + ".html";
     }
 
     public String getThumbMainFilename() {

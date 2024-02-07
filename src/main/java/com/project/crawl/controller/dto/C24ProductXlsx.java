@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Data
 @Slf4j
-public class C24CostcoProductXlsx extends C24CostcoProduct {
+public class C24ProductXlsx extends C24Product {
     private String searchKeyWords;
     private String categoryName;
     private int c24CateNo;

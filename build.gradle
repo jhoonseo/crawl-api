@@ -1,18 +1,14 @@
+// Correct placement of the plugins block at the top of the file
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.0.5'
 	id 'io.spring.dependency-management' version '1.1.0'
+	id 'nu.studer.jooq' version '6.0' // JOOQ 코드 생성 플러그인
 }
 
 group = 'com.costco'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
 
 repositories {
 	mavenCentral()
@@ -23,28 +19,47 @@ ext {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-jooq'
+	implementation 'org.springframework.boot:spring-boot-starter-jooq:3.2.1'
+	implementation 'org.jooq:jooq:3.19.3'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok:1.18.26'
+	runtimeOnly 'com.mysql:mysql-connector-java'
+	annotationProcessor 'org.projectlombok:lombok:1.18.26'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.testcontainers:junit-jupiter'
-	testImplementation 'org.testcontainers:mysql'
-	implementation group: 'io.springfox', name: 'springfox-oas', version: '3.0.0'
-	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.0.2'
-	implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
-	implementation group: 'io.swagger.core.v3', name: 'swagger-annotations', version: '2.2.8'
-	implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.8.3'
-	implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
-	implementation group: 'commons-net', name: 'commons-net', version: '3.9.0'
-	implementation group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.12.470'
-	implementation platform('software.amazon.awssdk:bom:2.20.56')
-	implementation 'software.amazon.awssdk:s3:'
-	implementation 'software.amazon.awssdk:sso'
-	implementation 'software.amazon.awssdk:ssooidc'
-	implementation group: 'org.apache.poi', name: 'poi', version: '5.2.3'
-	implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.2.3'
+	testImplementation 'org.testcontainers:junit-jupiter:1.17.6'
+	testImplementation 'org.testcontainers:mysql:1.17.6'
+	// Add other dependencies...
+}
+
+// JOOQ 코드 생성 설정
+jooq {
+	version = '3.19.3' // 사용 중인 JOOQ 버전
+	edition = nu.studer.gradle.jooq.JooqEdition.OSS
+	configurations {
+		main { // 'main' 소스 세트를 위한 코드 생성
+			generationTool {
+				logging = org.jooq.meta.jaxb.Logging.WARN
+				jdbc {
+					driver = 'com.mysql.cj.jdbc.Driver'
+					url = 'jdbc:mysql://localhost:3306/cokomo'
+					user = 'root'
+					password = 'zxcvzxcv'
+				}
+				generator {
+					database {
+						name = 'org.jooq.meta.mysql.MySQLDatabase'
+						inputSchema = 'your_schema'
+						includes = '.*'
+						excludes = ''
+					}
+					target {
+						packageName = 'com.ggumim.purchase.entity'
+						directory = 'src/main/java'
+					}
+				}
+			}
+		}
+	}
 }
 
 dependencyManagement {

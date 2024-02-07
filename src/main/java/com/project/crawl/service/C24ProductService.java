@@ -1,8 +1,8 @@
 package com.project.crawl.service;
 
 import com.project.crawl.controller.dto.C24Code;
-import com.project.crawl.controller.dto.C24CostcoProduct;
-import com.project.crawl.controller.dto.C24CostcoProductGroup;
+import com.project.crawl.controller.dto.C24Product;
+import com.project.crawl.controller.dto.C24ProductGroup;
 import com.project.crawl.dao.C24ProductDao;
 import com.project.crawl.exceptions.CrawlException;
 import lombok.RequiredArgsConstructor;
@@ -17,27 +17,31 @@ import java.util.List;
 public class C24ProductService {
     private final C24ProductDao c24ProductDao;
 
-    public List<C24CostcoProduct> getAvailableC24CostcoProductList() {
-        return c24ProductDao.getAvailableC24CostcoProductList();
+    public List<C24Product> getAvailableC24ProductCostcoList() {
+        return c24ProductDao.getAvailableC24ProductCostcoList();
     }
 
-    public String getLastC24Code() {
-        return c24ProductDao.getLastC24Code();
+    public String getLastC24CodeCostco() {
+        return c24ProductDao.getLastC24CodeCostco();
+    }
+
+    public String getLastC24Code1688() {
+        return c24ProductDao.getLastC24Code1688();
     }
 
     public List<Integer> getDisablingIdxList() {
         return c24ProductDao.getDisablingIdxList();
     }
 
-    public List<C24CostcoProduct> getC24CostcoProductListForExcel() {
+    public List<C24Product> getC24CostcoProductListForExcel() {
         return c24ProductDao.getC24CostcoProductListForExcel();
     }
 
-    public void updateC24Group(C24CostcoProductGroup c24Group) {
+    public void updateC24Group(C24ProductGroup c24Group) {
         c24ProductDao.updateC24Group(c24Group);
     }
 
-    public void updateStatusByProductCode(Integer productCode, Integer status) {
+    public void updateStatusByProductCode(Long productCode, Integer status) {
         c24ProductDao.updateStatusByProductCode(productCode, status);
     }
 
@@ -48,9 +52,14 @@ public class C24ProductService {
         c24ProductDao.updateStatusByIdxList(idxList, status);
     }
 
-    public void insertC24Product(C24CostcoProduct c24P) {
-        c24ProductDao.insertC24Product(c24P);
+    public void insertC24ProductCostco(C24Product c24P) {
+        c24ProductDao.insertC24ProductCostco(c24P);
     }
+
+    public void insertC24Product1688(C24Product c24P) {
+        c24ProductDao.insertC24Product1688(c24P);
+    }
+
 
     public void manageC24Code(C24Code c24Code) throws Exception {
         char a = c24Code.getA();
@@ -94,15 +103,15 @@ public class C24ProductService {
         c24Code.setCharsByChars(a, b, c, d);
     }
 
-    public boolean checkForSameObjects(List<C24CostcoProduct> productList) {
+    public boolean checkForSameObjects(List<C24Product> productList) {
         if (productList.size() <= 1) {
             return true; // 하나 이하의 객체이므로 모두 같다고 판단
         }
 
-        C24CostcoProduct firstProduct = productList.get(0);
+        C24Product firstProduct = productList.get(0);
 
         for (int i = 1; i < productList.size(); i++) {
-            C24CostcoProduct currentProduct = productList.get(i);
+            C24Product currentProduct = productList.get(i);
 
             // 객체가 서로 다른지 비교
             if (!firstProduct.equals(currentProduct)) {

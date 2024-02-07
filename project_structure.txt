@@ -1,0 +1,222 @@
+.
+├── HELP.md
+├── README.md
+├── build
+│   ├── classes
+│   │   └── java
+│   │       ├── main
+│   │       │   └── com
+│   │       │       └── project
+│   │       │           └── crawl
+│   │       │               ├── CrawlApplication.class
+│   │       │               ├── config
+│   │       │               │   └── SchedulerConfig.class
+│   │       │               ├── controller
+│   │       │               │   ├── CategoryController.class
+│   │       │               │   ├── FileController.class
+│   │       │               │   ├── ProductController.class
+│   │       │               │   ├── TestController.class
+│   │       │               │   └── dto
+│   │       │               │       ├── C24Code.class
+│   │       │               │       ├── C24Product.class
+│   │       │               │       ├── C24ProductChunk.class
+│   │       │               │       ├── C24ProductExceptionGroup.class
+│   │       │               │       ├── C24ProductGroup.class
+│   │       │               │       ├── C24ProductThumb.class
+│   │       │               │       ├── C24ProductXlsx.class
+│   │       │               │       ├── Category.class
+│   │       │               │       ├── CategoryInfo.class
+│   │       │               │       ├── CostcoProduct.class
+│   │       │               │       └── CrawlProduct.class
+│   │       │               ├── dao
+│   │       │               │   ├── C24ProductDao.class
+│   │       │               │   ├── C24XlsxDao.class
+│   │       │               │   ├── CategoryDao.class
+│   │       │               │   ├── ProductDao.class
+│   │       │               │   └── RestrictedKeywordDao.class
+│   │       │               ├── exceptions
+│   │       │               │   ├── CrawlException$Type.class
+│   │       │               │   └── CrawlException.class
+│   │       │               ├── service
+│   │       │               │   ├── BatchService.class
+│   │       │               │   ├── C24ProductService.class
+│   │       │               │   ├── C24XlsxService.class
+│   │       │               │   ├── CategoryService.class
+│   │       │               │   ├── CrawlService.class
+│   │       │               │   ├── ExcelService.class
+│   │       │               │   ├── FtpService.class
+│   │       │               │   ├── ProductService.class
+│   │       │               │   ├── ResizeService.class
+│   │       │               │   ├── RestrictedKeywordService.class
+│   │       │               │   ├── S3Service.class
+│   │       │               │   └── TranslateService.class
+│   │       │               └── util
+│   │       │                   ├── CommonUtil.class
+│   │       │                   └── ImageUtil.class
+│   │       └── test
+│   │           ├── C24CodeTest.class
+│   │           ├── DetectText.class
+│   │           ├── ImageTranslation.class
+│   │           ├── ImageUtils.class
+│   │           ├── ListTest.class
+│   │           ├── MapTest.class
+│   │           ├── Mp4Download.class
+│   │           ├── MySQLConnectionTest.class
+│   │           ├── NameReplace.class
+│   │           ├── PathTest.class
+│   │           ├── SeleniumTest.class
+│   │           └── com
+│   │               └── project
+│   │                   └── crawl
+│   │                       └── CrawlApplicationTests.class
+│   ├── generated
+│   │   └── sources
+│   │       ├── annotationProcessor
+│   │       │   └── java
+│   │       │       ├── main
+│   │       │       └── test
+│   │       └── headers
+│   │           └── java
+│   │               ├── main
+│   │               └── test
+│   ├── libs
+│   │   ├── crawl-0.0.1-SNAPSHOT-plain.jar
+│   │   └── crawl-0.0.1-SNAPSHOT.jar
+│   ├── reports
+│   │   └── tests
+│   │       └── test
+│   │           ├── classes
+│   │           │   └── com.project.crawl.CrawlApplicationTests.html
+│   │           ├── css
+│   │           │   ├── base-style.css
+│   │           │   └── style.css
+│   │           ├── index.html
+│   │           ├── js
+│   │           │   └── report.js
+│   │           └── packages
+│   │               └── com.project.crawl.html
+│   ├── resolvedMainClassName
+│   ├── resources
+│   │   └── main
+│   │       ├── application.yaml
+│   │       ├── logback.xml
+│   │       ├── static
+│   │       └── templates
+│   ├── test-results
+│   │   └── test
+│   │       ├── TEST-com.project.crawl.CrawlApplicationTests.xml
+│   │       └── binary
+│   │           ├── output.bin
+│   │           ├── output.bin.idx
+│   │           └── results.bin
+│   └── tmp
+│       ├── bootJar
+│       │   └── MANIFEST.MF
+│       ├── compileJava
+│       │   ├── compileTransaction
+│       │   │   ├── annotation-output
+│       │   │   ├── compile-output
+│       │   │   │   └── com
+│       │   │   │       └── project
+│       │   │   │           └── crawl
+│       │   │   │               ├── config
+│       │   │   │               ├── controller
+│       │   │   │               ├── service
+│       │   │   │               └── util
+│       │   │   ├── header-output
+│       │   │   └── stash-dir
+│       │   │       └── TestController.class.uniqueId0
+│       │   └── previous-compilation-data.bin
+│       ├── compileTestJava
+│       │   └── previous-compilation-data.bin
+│       ├── jar
+│       │   └── MANIFEST.MF
+│       └── test
+├── build.gradle
+├── gradle
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
+├── gradlew
+├── gradlew.bat
+├── project_structure.txt
+├── settings.gradle
+└── src
+    ├── chromedriver
+    ├── main
+    │   ├── java
+    │   │   └── com
+    │   │       └── project
+    │   │           └── crawl
+    │   │               ├── CrawlApplication.java
+    │   │               ├── config
+    │   │               │   ├── SchedulerConfig.java
+    │   │               │   └── SwaggerConfig.java
+    │   │               ├── controller
+    │   │               │   ├── CategoryController.java
+    │   │               │   ├── FileController.java
+    │   │               │   ├── ProductController.java
+    │   │               │   ├── TestController.java
+    │   │               │   └── dto
+    │   │               │       ├── C24Code.java
+    │   │               │       ├── C24Product.java
+    │   │               │       ├── C24ProductChunk.java
+    │   │               │       ├── C24ProductExceptionGroup.java
+    │   │               │       ├── C24ProductGroup.java
+    │   │               │       ├── C24ProductThumb.java
+    │   │               │       ├── C24ProductXlsx.java
+    │   │               │       ├── Category.java
+    │   │               │       ├── CategoryInfo.java
+    │   │               │       ├── CostcoProduct.java
+    │   │               │       └── CrawlProduct.java
+    │   │               ├── dao
+    │   │               │   ├── C24ProductDao.java
+    │   │               │   ├── C24XlsxDao.java
+    │   │               │   ├── CategoryDao.java
+    │   │               │   ├── ProductDao.java
+    │   │               │   └── RestrictedKeywordDao.java
+    │   │               ├── exceptions
+    │   │               │   └── CrawlException.java
+    │   │               ├── service
+    │   │               │   ├── BatchService.java
+    │   │               │   ├── C24ProductService.java
+    │   │               │   ├── C24XlsxService.java
+    │   │               │   ├── CategoryService.java
+    │   │               │   ├── CrawlService.java
+    │   │               │   ├── ExcelService.java
+    │   │               │   ├── FtpService.java
+    │   │               │   ├── ProductService.java
+    │   │               │   ├── ResizeService.java
+    │   │               │   ├── RestrictedKeywordService.java
+    │   │               │   ├── S3Service.java
+    │   │               │   └── TranslateService.java
+    │   │               └── util
+    │   │                   ├── CommonUtil.java
+    │   │                   └── ImageUtil.java
+    │   └── resources
+    │       ├── application.yaml
+    │       ├── logback.xml
+    │       ├── static
+    │       └── templates
+    └── test
+        └── java
+            ├── C24CodeTest.java
+            ├── DetectText.java
+            ├── ImageTranslation.java
+            ├── ImageUtils.java
+            ├── ListTest.java
+            ├── MapTest.java
+            ├── Mp4Download.java
+            ├── MySQLConnectionTest.java
+            ├── NameReplace.java
+            ├── PathTest.java
+            ├── SeleniumTest.java
+            ├── a_translated.png
+            ├── com
+            │   └── project
+            │       └── crawl
+            │           └── CrawlApplicationTests.java
+            ├── test.jpg
+            └── test2.png
+
+85 directories, 135 files
