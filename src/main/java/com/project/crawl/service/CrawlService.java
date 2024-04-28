@@ -1,9 +1,6 @@
 package com.project.crawl.service;
 
-import com.project.crawl.controller.dto.C24Product;
-import com.project.crawl.controller.dto.Category;
-import com.project.crawl.controller.dto.CategoryInfo;
-import com.project.crawl.controller.dto.CostcoProduct;
+import com.project.crawl.controller.dto.*;
 import com.project.crawl.exceptions.CrawlException;
 import com.project.crawl.util.CommonUtil;
 import com.project.crawl.util.LanguageCode;
@@ -202,13 +199,17 @@ public class CrawlService {
     }
 
     public C24Product crawlProductCostco(WebDriver driver, WebDriverWait webDriverWait, Long productCode, String formatToday) throws IOException {
+        return crawlProductCostco(driver, webDriverWait, productCode, formatToday, false);
+    }
+
+    public C24Product crawlProductCostco(WebDriver driver, WebDriverWait webDriverWait, Long productCode, String formatToday, boolean isSkipDownloadCheck) throws IOException {
         C24Product c24Product = new C24Product();
         c24Product.setProductCode(productCode);
-        crawlProductCostco(driver, webDriverWait, c24Product, formatToday);
+        crawlProductCostco(driver, webDriverWait, c24Product, formatToday, isSkipDownloadCheck);
         return c24Product;
     }
 
-    public void crawlProductCostco(WebDriver driver, WebDriverWait webDriverWait, C24Product c24Product, String formatToday) throws IOException {
+    public void crawlProductCostco(WebDriver driver, WebDriverWait webDriverWait, C24Product c24Product, String formatToday, boolean isSkipDownloadCheck) throws IOException {
         log.debug(c24Product.getProductUrlCostco()); // TODO remove after test
         driver.get(c24Product.getProductUrlCostco());
 
@@ -327,7 +328,7 @@ public class CrawlService {
             String fileName = url.split("/")[url.split("/").length - 1];
             if (!Objects.isNull(url) && !url.isEmpty()
                     && !url.endsWith(".webp")
-                    && commonUtil.isImageDownloaded1688(url, formatToday)
+                    && commonUtil.imageDownloadAfterCheck1688(url, formatToday)
             ) {
                 imgUrlList.add(url);
                 imgFilenameList.add(fileName);
@@ -336,7 +337,7 @@ public class CrawlService {
 
         // todo : put translation here?
         StringBuilder descriptionDetailInfo = new StringBuilder();
-        if (imgUrlList.size() == 0) {
+        if (imgUrlList.isEmpty()) {
             c24Product.setC24Status(0);
         } else {
             for (int i = 0; i < imgUrlList.size(); i++) {
@@ -471,6 +472,10 @@ public class CrawlService {
     }
 
     private void processThumbsAndGenerateThumbDetailInfoCostco(WebDriver driver, C24Product c24Product, String formatToday) throws IOException {
+        processThumbsAndGenerateThumbDetailInfoCostco(driver, c24Product, formatToday, false);
+    }
+
+    private void processThumbsAndGenerateThumbDetailInfoCostco(WebDriver driver, C24Product c24Product, String formatToday, boolean isSkipDownloadCheck) throws IOException {
         // setThumbDetail && setThumbExtraFilenames && setThumbMain && setThumbExtra
         // 적절한 이미지가 1개도 없는 경우 setC24Status(0)
         List<WebElement> thumbElementList = driver.findElement(By.className("image-panel")).findElements(By.className("thumb"));
@@ -491,7 +496,7 @@ public class CrawlService {
             if (!Objects.isNull(url) && !url.isEmpty()
                     && !url.endsWith(".webp")
                     && commonUtil.isNukkiImage(url)
-                    && commonUtil.isImageDownloadedCostco(url, formatToday)
+                    && isSkipDownloadCheck ? commonUtil.imageDownloadCostco(url, formatToday) : commonUtil.imageDownloadAfterCheckCostco(url, formatToday)
             ) {
                 thumbUrlList.add(url);
                 thumbFilenameList.add(fileName);
@@ -538,7 +543,7 @@ public class CrawlService {
 
             if (!Objects.isNull(url) && !url.isEmpty()
                     && !url.endsWith(".webp")
-                    && commonUtil.isImageDownloaded1688(url, formatToday)
+                    && commonUtil.imageDownloadAfterCheck1688(url, formatToday)
             ) {
                 thumbUrlList.add(url);
                 thumbFilenameList.add(fileName);

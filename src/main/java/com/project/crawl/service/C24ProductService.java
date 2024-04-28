@@ -21,6 +21,10 @@ public class C24ProductService {
         return c24ProductDao.getAvailableC24ProductCostcoList();
     }
 
+    public List<C24Product> getAllC24ProductCostcoList() {
+        return c24ProductDao.getAllC24ProductCostcoList();
+    }
+
     public String getLastC24CodeCostco() {
         return c24ProductDao.getLastC24CodeCostco();
     }
@@ -46,7 +50,7 @@ public class C24ProductService {
     }
 
     public void updateStatusByIdxList(List<Integer> idxList, Integer status) {
-        if (idxList.size() == 0) {
+        if (idxList.isEmpty()) {
             return;
         }
         c24ProductDao.updateStatusByIdxList(idxList, status);

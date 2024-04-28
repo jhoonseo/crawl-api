@@ -308,15 +308,16 @@ public class CommonUtil {
         return true;
     }
 
-    public boolean downloadImage1688(String imageUrl, String formatToday) {
-        return downloadAndCopyImageAfterExistenceCheck(imageUrl, localImagesDirectory1688, localDailyDirectory1688, formatToday);
+    public boolean imageDownloadCostco(String imageUrl, String formatToday) {
+        // download 상태 체크를 스킵
+        return downloadAndCopyImage(imageUrl, localImagesDirectoryCostco, localDailyDirectoryCostco, formatToday);
     }
 
-    public boolean isImageDownloadedCostco(String imageUrl, String formatToday) {
+    public boolean imageDownloadAfterCheckCostco(String imageUrl, String formatToday) {
         return downloadAndCopyImageAfterExistenceCheck(imageUrl, localImagesDirectoryCostco, localDailyDirectoryCostco, formatToday);
     }
 
-    public boolean isImageDownloaded1688(String imageUrl, String formatToday) {
+    public boolean imageDownloadAfterCheck1688(String imageUrl, String formatToday) {
         return downloadAndCopyImageAfterExistenceCheck(imageUrl, localImagesDirectory1688, localDailyDirectory1688, formatToday);
     }
 

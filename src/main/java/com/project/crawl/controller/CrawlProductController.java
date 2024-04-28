@@ -33,6 +33,93 @@ public class CrawlProductController {
     private final C24ProductService c24ProductService;
     private final CommonUtil commonUtil;
 
+    @GetMapping("/crawl-costco-byC24Code")
+    public void renewCostcoProductByC24CodeList(
+            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today,
+            @RequestParam("c24CodeList") List<String> fixingC24CodeList
+    ) {
+        List<C24Product> fixingC24ProductList = c24ProductService.getAllC24ProductCostcoList();
+
+        // directory 체크 && 만들기
+        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        try {
+            commonUtil.generateDailyDirectoriesCostco(formatToday);
+        } catch (IOException e) {
+            throw new CrawlException(CrawlException.Type.BAD_REQUEST, String.format("directory creation failed. %s", e.getMessage()));
+        }
+
+        // c24_product 정보가 1. 없는 경우(새상품), 2. 누락된 경우(크롤링 이슈), 3. 정상의 경우 에 따라서 알맞게 처리
+
+        // 기존 상품 | productCode key 를 기준으로 오름차순으로 정렬
+        // c24Idx 가 0이 아니고, c24Code 가 있는 c24CostcoProduct 를 productCode 로 grouping
+        Map<Long, List<C24Product>> fixingC24ProductsMap = fixingC24ProductList.stream()
+                .filter(c24Product -> fixingC24CodeList.contains(c24Product.getC24Code()))
+                .sorted(Comparator.comparing(C24Product::getProductCode))
+                .collect(Collectors.groupingBy(C24Product::getProductCode,
+                        LinkedHashMap::new, Collectors.toList()));
+
+        // Exception 발생한 상품을 Group 으로 관리하기 위한 List
+        List<C24ProductExceptionGroup> c24ExceptionGroupList = new ArrayList<>();
+
+        // WebDriver 설정
+        crawlService.setDriverProperty();
+        WebDriver driver = crawlService.createWebDriver();
+        WebDriverWait webDriverWait = crawlService.createWebDriverWait(driver, 10);
+
+        try {
+            for (Map.Entry<Long, List<C24Product>> entry : fixingC24ProductsMap.entrySet()) {
+                Long productCode = entry.getKey();
+                C24ProductGroup c24Group = new C24ProductGroup();
+                c24Group.setProductCode(productCode);
+                C24Product c24Product;
+                try {
+                    c24Product = crawlService.crawlProductCostco(driver, webDriverWait, productCode, formatToday, true);
+                } catch (Exception e) {
+                    if (e instanceof CrawlException && ((CrawlException) e).getType() == CrawlException.Type.FORBIDDEN) {
+                        // CrawlException.Type.FORBIDDEN 일 경우, 그대로 throw
+                        throw e;
+                    }
+                    C24ProductExceptionGroup c24ExceptionGroup = new C24ProductExceptionGroup(productCode, false);
+                    c24ExceptionGroupList.add(c24ExceptionGroup);
+                    continue;
+                }
+
+                // update 전 필수 속성 검사하여 status setC24Status 변경 여부 결정
+                if (!c24Product.checkForC24ProductMustAttributes()) {
+                    c24Product.setC24Status(0);
+                }
+                c24Group.setCommonC24Product(c24Product);
+                c24ProductService.updateC24Group(c24Group);
+            }
+
+            // Exception 발생 c24CostcoProduct 에 대해서 다시 crawl 시도 후, 에러 발생할 경우 상품 비활성화
+            for (C24ProductExceptionGroup c24ExceptionGroup : c24ExceptionGroupList) {
+                C24Product c24Product;
+                try {
+                    c24Product = crawlService.crawlProductCostco(driver, webDriverWait, c24ExceptionGroup.getProductCode(), formatToday);
+                } catch (Exception e) {
+                    if (e instanceof CrawlException && ((CrawlException) e).getType() == CrawlException.Type.FORBIDDEN) {
+                        // CrawlException.Type.FORBIDDEN 일 경우, 그대로 throw
+                        throw e;
+                    }
+                    c24ProductService.updateStatusByProductCode(c24ExceptionGroup.getProductCode(), 0);
+                    continue;
+                }
+
+                // update 전 필수 속성 검사하여 status setC24Status 변경 여부 결정
+                if (!c24Product.checkForC24ProductMustAttributes()) {
+                    c24Product.setC24Status(0);
+                }
+                c24ExceptionGroup.setCommonC24Product(c24Product);
+                c24ProductService.updateC24Group(c24ExceptionGroup);
+            }
+        } catch (Exception e) {
+            throw new CrawlException(CrawlException.Type.BAD_REQUEST, e.getMessage());
+        } finally {
+            driver.quit();
+        }
+    }
+
     @PostMapping("/crawl-costco")
     public void renewCostcoProduct(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
@@ -85,7 +172,7 @@ public class CrawlProductController {
         try {
             for (C24Product c24Product : newC24ProductList) {
                 try {
-                    crawlService.crawlProductCostco(driver, webDriverWait, c24Product, formatToday);
+                    crawlService.crawlProductCostco(driver, webDriverWait, c24Product, formatToday, false);
                 } catch (Exception e) {
                     if (e instanceof CrawlException && ((CrawlException) e).getType() == CrawlException.Type.FORBIDDEN) {
                         // CrawlException.Type.FORBIDDEN 일 경우, 그대로 throw

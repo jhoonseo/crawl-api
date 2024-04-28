@@ -85,7 +85,8 @@ public class FileController {
         // 판매 가능 상품 조회
         List<C24ProductXlsx> availableList = c24XlsxService.getAvailableC24CostcoProductXlsxList();
         // 판매 불가능 상품 조회
-        List<C24ProductXlsx> unavailableList = c24XlsxService.getUnavailableC24CostcoProductXlsxList();
+        // List<C24ProductXlsx> unavailableList = c24XlsxService.getUnavailableC24CostcoProductXlsxList();
+        List<C24ProductXlsx> unavailableList = c24XlsxService.getEntireUnavailableC24CostcoProductXlsxList();
         // restricted keywords 가져오기
         List<String> restrictedKeywordList = restrictedKeywordService.getResetrictedKeywordList();
         // 판매 가능 상품 중, restricted keyword filter 하여 판매 불가능 상품에 추가
@@ -129,7 +130,27 @@ public class FileController {
     ) {
         String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
         // 판매 불가능 상품 조회
+        List<C24ProductXlsx> availableList = c24XlsxService.getAvailableC24CostcoProductXlsxList();
+        // 판매 불가능 상품 조회
         List<C24ProductXlsx> unavailableList = c24XlsxService.getEntireUnavailableC24CostcoProductXlsxList();
+        // restricted keywords 가져오기
+        List<String> restrictedKeywordList = restrictedKeywordService.getResetrictedKeywordList();
+        // 판매 가능 상품 중, restricted keyword filter 하여 판매 불가능 상품에 추가
+        Iterator<C24ProductXlsx> iterator = availableList.iterator();
+        while (iterator.hasNext()) {
+            C24ProductXlsx product = iterator.next();
+            String productName = product.getName();
+
+            // restricted keyword filter
+            for (String restrictedKeyword : restrictedKeywordList) {
+                if (productName.contains(restrictedKeyword)) {
+                    unavailableList.add(product); // 판매 불가능 상품에 추가
+                    iterator.remove(); // availableList 에서 제거
+                    break;
+                }
+            }
+        }
+
         // 판매 불가능 상품 엑셀 만들기
         List<C24ProductChunk> unavailableChunks = excelService.divideList(unavailableList, 799);
         for (C24ProductChunk chunk : unavailableChunks) {

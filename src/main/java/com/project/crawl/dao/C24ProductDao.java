@@ -89,7 +89,7 @@ public class C24ProductDao {
                 .fetchInto(C24Product.class);
     }
 
-    public List<C24Product> getAllC24CostcoProductList() {
+    public List<C24Product> getAllC24ProductCostcoList() {
         return context.select(
                         field("cp.idx").as("cp_idx"),
                         field("c24.idx").as("c24_idx"),
