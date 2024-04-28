@@ -327,7 +327,7 @@ public class CrawlService {
             String fileName = url.split("/")[url.split("/").length - 1];
             if (!Objects.isNull(url) && !url.isEmpty()
                     && !url.endsWith(".webp")
-                    && commonUtil.isImageDownloaded1688(url, fileName, formatToday)
+                    && commonUtil.isImageDownloaded1688(url, formatToday)
             ) {
                 imgUrlList.add(url);
                 imgFilenameList.add(fileName);
@@ -491,14 +491,14 @@ public class CrawlService {
             if (!Objects.isNull(url) && !url.isEmpty()
                     && !url.endsWith(".webp")
                     && commonUtil.isNukkiImage(url)
-                    && commonUtil.isImageDownloadedCostco(url, fileName, formatToday)
+                    && commonUtil.isImageDownloadedCostco(url, formatToday)
             ) {
                 thumbUrlList.add(url);
                 thumbFilenameList.add(fileName);
             }
         }
 
-        if (thumbUrlList.size() == 0) {
+        if (thumbUrlList.isEmpty()) {
             // 누끼 이미지가 없는 경우, 상품을 비활성화
             c24Product.setC24Status(0);
         } else {
@@ -538,14 +538,14 @@ public class CrawlService {
 
             if (!Objects.isNull(url) && !url.isEmpty()
                     && !url.endsWith(".webp")
-                    && commonUtil.isImageDownloaded1688(url, fileName, formatToday)
+                    && commonUtil.isImageDownloaded1688(url, formatToday)
             ) {
                 thumbUrlList.add(url);
                 thumbFilenameList.add(fileName);
             }
         }
 
-        if (thumbUrlList.size() == 0) {
+        if (thumbUrlList.isEmpty()) {
             // 이미지가 없는 경우, 상품을 비활성화
             c24Product.setC24Status(0);
         } else {

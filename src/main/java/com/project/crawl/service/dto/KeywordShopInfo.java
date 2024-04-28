@@ -17,6 +17,7 @@ public class KeywordShopInfo {
     public boolean factory_inspection;
     public String shop_repurchase_rate;
     public KeywordShopScoreInfo sore_info;
+    private Integer idx;
     // ... Add other fields as necessary
     public BigDecimal getShop_repurchase_rate() {
         // '%' 문자를 제거합니다.

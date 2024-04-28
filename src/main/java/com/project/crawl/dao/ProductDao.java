@@ -88,6 +88,28 @@ public class ProductDao {
                 ).fetchOneInto(Integer.class);
     }
 
+    public List<String> getDailyDetailItemMainImages1688(String startDate) {
+        // detail_item_main_images_1688
+        return context.select(field("image_url"))
+                .from(table("detail_item_main_images_1688"))
+                .where(
+                        field("updated_datetime").greaterOrEqual(startDate)
+                ).fetchInto(String.class);
+    }
+
+    public List<String> getDailyDetailItemMainImages1688() {
+        // detail_item_main_images_1688
+        return context.select(field("image_url"))
+                .from(table("detail_item_main_images_1688"))
+                .fetchInto(String.class);
+    }
+
+    public List<String> getDailyDescriptionItemImageUrlTexts1688() {
+        return context.select(field("img_url_text"))
+                .from(table("description_item_1688"))
+                .fetchInto(String.class);
+    }
+
     public void insertCostcoProduct(CostcoProduct costcoProduct) {
         context.insertInto(table("product_costco"))
                 .columns(field("product_code"), field("costco_category_idx"),

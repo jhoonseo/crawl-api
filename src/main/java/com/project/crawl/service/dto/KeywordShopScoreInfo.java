@@ -10,5 +10,7 @@ public class KeywordShopScoreInfo {
     public double dispute_score;
     public double logistics_score;
     public double return_score;
+    private Integer shop_idx;
+    private String shop_member_id;
     // ... Add other fields as necessary
 }

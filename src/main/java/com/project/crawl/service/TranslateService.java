@@ -1,12 +1,6 @@
 package com.project.crawl.service;
 
-import com.google.cloud.vision.v1.AnnotateImageRequest;
-import com.google.cloud.vision.v1.AnnotateImageResponse;
-import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
-import com.google.cloud.vision.v1.EntityAnnotation;
-import com.google.cloud.vision.v1.Feature;
-import com.google.cloud.vision.v1.Image;
-import com.google.cloud.vision.v1.ImageAnnotatorClient;
+import com.google.cloud.vision.v1.*;
 import com.google.protobuf.ByteString;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,13 +11,13 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,46 +31,49 @@ public class TranslateService {
     private String clientSecret;
 
 
-    public void translateImage(String imagePath, String outputImagePath) {
-        String targetLanguage = "ko";
-        String sourceLanguage = "zh-CN";
+    public void translateImage(String imagePath, String outputImagePath, String copyPath) {
+        String targetLanguage = "ko"; // 번역할 대상 언어
+        String sourceLanguage = "zh-CN"; // 원본 이미지의 언어
         try {
-            String apiUrl = "https://naveropenapi.apigw.ntruss.com/image-to-image/v1/translate";
-
+            String apiUrl = "https://naveropenapi.apigw.ntruss.com/image-to-image/v1/translate"; // API URL
             File imageFile = new File(imagePath);
-            String boundary = UUID.randomUUID().toString();
-            String crlf = "\r\n";
-            String twoHyphens = "--";
-            String charset = "UTF-8";
+            String boundary = UUID.randomUUID().toString(); // Boundary 생성
+            String crlf = "\r\n"; // 줄바꿈
+            String twoHyphens = "--"; // Boundary 시작을 위한 구분자
+            String charset = "UTF-8"; // 문자 인코딩
 
             HttpURLConnection connection = (HttpURLConnection) new URL(apiUrl).openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "multipart/form-searchData; boundary=" + boundary);
-            connection.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
-            connection.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
+            connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+            connection.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId); // 클라이언트 ID
+            connection.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret); // 클라이언트 Secret
 
             try (OutputStream output = connection.getOutputStream(); PrintWriter writer = new PrintWriter(new OutputStreamWriter(output, charset), true)) {
-                // 이미지와 언어 설정 파라미터 추가
-                writer.append(twoHyphens + boundary).append(crlf);
-                writer.append("Content-Disposition: form-searchData; name=\"source\"").append(crlf);
-                writer.append("Content-Type: text/plain; charset=" + charset).append(crlf);
+                // 소스 언어 설정 파라미터 추가
+                writer.append(twoHyphens).append(boundary).append(crlf);
+                writer.append("Content-Disposition: form-data; name=\"source\"").append(crlf);
+                writer.append("Content-Type: text/plain; charset=").append(charset).append(crlf);
                 writer.append(crlf).append(sourceLanguage).append(crlf).flush();
 
-                writer.append(twoHyphens + boundary).append(crlf);
-                writer.append("Content-Disposition: form-searchData; name=\"target\"").append(crlf);
-                writer.append("Content-Type: text/plain; charset=" + charset).append(crlf);
+                // 타겟 언어 설정 파라미터 추가
+                writer.append(twoHyphens).append(boundary).append(crlf);
+                writer.append("Content-Disposition: form-data; name=\"target\"").append(crlf);
+                writer.append("Content-Type: text/plain; charset=").append(charset).append(crlf);
                 writer.append(crlf).append(targetLanguage).append(crlf).flush();
 
-                writer.append(twoHyphens + boundary).append(crlf);
-                writer.append("Content-Disposition: form-searchData; name=\"image\"; filename=\"" + imageFile.getName() + "\"").append(crlf);
-                writer.append("Content-Type: " + Files.probeContentType(imageFile.toPath())).append(crlf);
+                // 이미지 파일 파라미터 추가
+                writer.append(twoHyphens).append(boundary).append(crlf);
+                writer.append("Content-Disposition: form-data; name=\"image\"; filename=\"").append(imageFile.getName()).append("\"").append(crlf);
+                writer.append("Content-Type: ").append(Files.probeContentType(imageFile.toPath())).append(crlf); // 이미지 파일 타입
                 writer.append(crlf).flush();
-                Files.copy(imageFile.toPath(), output);
+                Files.copy(imageFile.toPath(), output); // 이미지 파일 데이터 전송
+
                 output.flush();
                 writer.append(crlf).flush();
 
-                writer.append(twoHyphens + boundary + "--").append(crlf).flush();
+                // 마지막 boundary 추가
+                writer.append(twoHyphens).append(boundary).append(twoHyphens).append(crlf).flush();
             }
 
             int responseCode = connection.getResponseCode();
@@ -94,14 +91,102 @@ public class TranslateService {
                     byte[] imageBytes = Base64.getDecoder().decode(imageBase64);
 
                     Path outputPath = Paths.get(outputImagePath);
-                    Files.write(outputPath, imageBytes);
-                }
+                    Files.write(outputPath, imageBytes); // 번역된 이미지 파일 저장
 
+                    // download 한 파일을 copy 진행
+                    if (!copyPath.isEmpty()) {
+                        Files.copy(outputPath, Path.of(copyPath), StandardCopyOption.REPLACE_EXISTING); // 일일 이미지 디렉토리에 복사
+                    }
+                }
             } else {
                 log.error("Error: " + responseCode);
             }
         } catch (IOException e) {
             log.error("Exception occurred during image translation", e);
+        }
+    }
+
+    public void translateImages(String sourceDirectory, String targetDirectory, String copyPath) throws IOException {
+        // 원본 디렉토리에서 파일명 추출
+        Set<String> sourceFileNames = Files.list(Paths.get(sourceDirectory))
+                .map(path -> path.getFileName().toString()).collect(Collectors.toSet());
+
+        // 대상 디렉토리의 모든 파일명을 메모리에 로드
+        Set<String> existingFileNames = Files.list(Paths.get(targetDirectory))
+                .map(path -> path.getFileName().toString())
+                .collect(Collectors.toSet());
+
+        for (String fileName : sourceFileNames) {
+            String imagePath = Paths.get(sourceDirectory, fileName).toString();
+            String outputImagePath = Paths.get(targetDirectory, fileName).toString();
+
+            // 이미 파일이 대상 디렉토리에 존재하는지 확인
+            if (!existingFileNames.contains(fileName)) {
+                // 파일이 존재하지 않는 경우에만 번역
+                translateImage(imagePath, outputImagePath, copyPath);
+            }
+        }
+    }
+
+    public String getDetectLanguageCodeNCP(String text) {
+        try {
+            String apiUrl = "https://naveropenapi.apigw.ntruss.com/langs/v1/dect";
+            HttpURLConnection connection = prepareConnection(apiUrl);
+
+            // POST 요청에 필요한 파라미터 전송
+            sendPostData(connection, "query=" + URLEncoder.encode(text, StandardCharsets.UTF_8));
+
+            // 응답 처리
+            return readResponse(connection);
+        } catch (Exception e) {
+            log.error("Error detecting language", e);
+            return null;
+        }
+    }
+
+    public String translateText(String originalText, String sourceLang, String targetLang) {
+        try {
+            String apiUrl = "https://naveropenapi.apigw.ntruss.com/nmt/v1/translation";
+            HttpURLConnection connection = prepareConnection(apiUrl);
+
+            // POST 요청에 필요한 파라미터 전송
+            sendPostData(connection, "source=" + sourceLang + "&target=" + targetLang + "&text=" + URLEncoder.encode(originalText, StandardCharsets.UTF_8));
+
+            // 응답 처리
+            return readResponse(connection);
+        } catch (Exception e) {
+            log.error("Error translating text", e);
+            return null;
+        }
+    }
+
+    private HttpURLConnection prepareConnection(String apiUrl) throws IOException {
+        URL url = new URL(apiUrl);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
+        con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
+        return con;
+    }
+
+    private String readResponse(HttpURLConnection con) throws IOException {
+        int responseCode = con.getResponseCode();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                responseCode == 200 ? con.getInputStream() : con.getErrorStream()))) {
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+            return response.toString();
+        }
+    }
+
+    private void sendPostData(HttpURLConnection connection, String postData) throws IOException {
+        try (DataOutputStream wr = new DataOutputStream(connection.getOutputStream())) {
+            wr.writeBytes(postData);
+            wr.flush();
         }
     }
 
@@ -140,87 +225,4 @@ public class TranslateService {
 
         return detectedTextBuilder.toString();
     }
-
-    public String getDetectLanguageCodeNCP(String text) {
-        try {
-            String query = URLEncoder.encode(text, "UTF-8");
-            String apiURL = "https://naveropenapi.apigw.ntruss.com/langs/v1/dect"; // 올바른 API 주소는 "https://openapi.naver.com/v1/papago/detectLangs" 입니다.
-            URL url = new URL(apiURL);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
-            con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
-
-            // POST 요청에 필요한 파라미터 전송
-            String postParams = "query=" + query;
-            con.setDoOutput(true);
-            try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-                wr.writeBytes(postParams);
-                wr.flush();
-            }
-
-            int responseCode = con.getResponseCode();
-            BufferedReader br;
-            if (responseCode == 200) { // 정상 호출
-                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            } else {  // 오류 발생
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-            }
-            StringBuilder response = new StringBuilder();
-            String inputLine;
-            while ((inputLine = br.readLine()) != null) {
-                response.append(inputLine);
-            }
-            br.close();
-            return response.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null; // 예외 발생 시 null 반환
-        }
-    }
-
-    // 텍스트 번역 메서드
-    public String translateText(String originalText, String sourceLang, String targetLang) {
-        try {
-            String encodedText = URLEncoder.encode(originalText, "UTF-8");
-            String apiURL = "https://naveropenapi.apigw.ntruss.com/nmt/v1/translation";
-            URL url = new URL(apiURL);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-            con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
-            con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
-
-            // POST 요청에 필요한 파라미터
-            String postParams = "source=" + sourceLang + "&target=" + targetLang + "&text=" + encodedText;
-            con.setDoOutput(true);
-            try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-                wr.writeBytes(postParams);
-                wr.flush();
-            }
-
-            int responseCode = con.getResponseCode();
-            BufferedReader br;
-            if (responseCode == 200) { // 정상 호출
-                br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            } else {  // 오류 발생
-                br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-            }
-
-            StringBuilder response = new StringBuilder();
-            String inputLine;
-            while ((inputLine = br.readLine()) != null) {
-                response.append(inputLine);
-            }
-            br.close();
-
-            // 번역 결과 파싱 (여기서는 단순화를 위해 전체 응답을 출력하고 있습니다. 실제로는 JSON 파싱이 필요합니다.)
-            return response.toString();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null; // 예외 발생 시 null 반환
-        }
-    }
-
 }

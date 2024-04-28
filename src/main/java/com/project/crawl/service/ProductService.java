@@ -60,4 +60,5 @@ public class ProductService {
         productDao.insertCostcoProductCollection(costcoProductCollection);
     }
 
+
 }

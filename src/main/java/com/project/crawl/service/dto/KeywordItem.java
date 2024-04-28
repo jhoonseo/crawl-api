@@ -1,8 +1,8 @@
 package com.project.crawl.service.dto;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class KeywordItem {
@@ -28,5 +28,8 @@ public class KeywordItem {
     public boolean super_new_product;
     public int byr_inquiry_uv; // changed from String to int based on the JSON provided
     public KeywordShopInfo shop_info;
+    private int shop_idx;
+    private String category_path_idxs;
+    private int sale_info_idx;
     // ... Add other fields as necessary
 }

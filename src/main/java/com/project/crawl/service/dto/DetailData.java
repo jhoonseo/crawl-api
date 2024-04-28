@@ -24,5 +24,7 @@ public class DetailData {
     public SkuPriceRange sku_price_range;
     public List<SkuProp> sku_props;
     public List<Sku> skus;
+    private int status;
+    private int idx;
     // Assuming other fields from the initial SearchData class are also included
 }
