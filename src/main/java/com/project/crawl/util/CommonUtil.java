@@ -164,11 +164,17 @@ public class CommonUtil {
             int bottomLeftPixel = image.getRGB(0, height - 1);
             int bottomRightPixel = image.getRGB(width - 1, height - 1);
 
+            // 배경이 4곳이 서로 같은 색인 경우 누끼 이미지로 간주
+            return (topLeftPixel == topRightPixel)
+                    && (topRightPixel == bottomLeftPixel)
+                    && (bottomLeftPixel == bottomRightPixel);
+            /*
             // 배경이 흰색인 경우를 누끼 이미지로 간주
             return isPixelWhite(topLeftPixel)
                     && isPixelWhite(topRightPixel)
                     && isPixelWhite(bottomLeftPixel)
                     && isPixelWhite(bottomRightPixel);
+             */
         } catch (Exception e) {
             // 이미지를 불러오는 도중 예외가 발생하면 누끼 이미지로 처리하지 않음
             return false;

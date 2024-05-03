@@ -88,6 +88,7 @@ public class CrawlProductController {
                 if (!c24Product.checkForC24ProductMustAttributes()) {
                     c24Product.setC24Status(0);
                 }
+
                 c24Group.setCommonC24Product(c24Product);
                 c24ProductService.updateC24Group(c24Group);
             }
