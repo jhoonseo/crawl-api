@@ -41,7 +41,7 @@ public class CrawlProductController {
         List<C24Product> fixingC24ProductList = c24ProductService.getAllC24ProductCostcoList();
 
         // directory 체크 && 만들기
-        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        String formatToday = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
         try {
             commonUtil.generateDailyDirectoriesCostco(formatToday);
         } catch (IOException e) {
@@ -135,7 +135,7 @@ public class CrawlProductController {
         c24Code.setCharsByCode(lastC24Code);
 
         // directory 체크 && 만들기
-        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        String formatToday = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
         try {
             commonUtil.generateDailyDirectoriesCostco(formatToday);
         } catch (IOException e) {

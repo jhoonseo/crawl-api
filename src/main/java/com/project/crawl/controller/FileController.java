@@ -32,7 +32,7 @@ public class FileController {
     public List<String> resizeDailyImages(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
     ) throws IOException {
-        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        String formatToday = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
 
         // todo 에러 파일을 가지고 있는 상품을 가져와서 파일명만 대조 후, 일괄 비활성화
         return resizeService.resizeDailyDirectoryImages(formatToday);
@@ -40,22 +40,25 @@ public class FileController {
 
     @GetMapping("/images/resizeAll")
     public List<String> resizeAllImages(LocalDate today) throws IOException {
-        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        String formatToday = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
 
         // todo 에러 파일을 가지고 있는 상품을 가져와서 파일명만 대조 후, 일괄 비활성화
         return resizeService.resizeEntireDirectoryImages(formatToday);
     }
 
     @PostMapping("/images/ftp/daily")
-    public void ftpUploadDailyImages(
-            @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
-    ) throws IOException {
-        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
-
+    public void ftpUploadDailyImages(@RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today) throws IOException {
+        String formatToday = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
         String[][] pathArray = ftpService.getPathArray(formatToday);
 
-        for (String[] path : pathArray) {
-            ftpService.uploadDirectoryFiles(path[0], path[1]);
+        ftpService.connectFtp(); // 연결은 한 번만 실행
+
+        try {
+            for (String[] path : pathArray) {
+                ftpService.uploadDirectoryFiles(path[0], path[1]);
+            }
+        } finally {
+            ftpService.quitFtp(); // 모든 업로드가 끝난 후 연결 해제
         }
     }
 
@@ -72,7 +75,7 @@ public class FileController {
     public void s3UploadImagesPublic(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
     ) {
-        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        String formatToday = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
         String path = String.join("/", "daily", formatToday, "images");
         s3Service.uploadDirectoryFilesPublic(path);
     }
@@ -81,7 +84,7 @@ public class FileController {
     public void exportExcel(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
     ) {
-        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        String formatToday = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
         // 판매 가능 상품 조회
         List<C24ProductXlsx> availableList = c24XlsxService.getAvailableC24CostcoProductXlsxList();
         // 판매 불가능 상품 조회
@@ -128,7 +131,7 @@ public class FileController {
     public void exportUnavailableExcel(
             @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate today
     ) {
-        String formatToday = today.format(DateTimeFormatter.ofPattern("MMdd"));
+        String formatToday = today.format(DateTimeFormatter.ofPattern("yyMMdd"));
         // 판매 불가능 상품 조회
         List<C24ProductXlsx> availableList = c24XlsxService.getAvailableC24CostcoProductXlsxList();
         // 판매 불가능 상품 조회

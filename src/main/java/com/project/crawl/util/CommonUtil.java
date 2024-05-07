@@ -278,40 +278,46 @@ public class CommonUtil {
         }
     }
 
+    private boolean downloadImage(String imageUrl, Path destinationPath) {
+        try (InputStream in = new BufferedInputStream(new URL(imageUrl).openStream())) {
+            Files.copy(in, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
     // 공통 다운로드 및 복사 로직을 처리하는 메소드
     private boolean downloadAndCopyImage(String imageUrl, String localImagesDirectory, String localDailyDirectory, String formatToday) {
         String fileName = imageUrl.split("/")[imageUrl.split("/").length - 1];
         Path filePath = Path.of(localImagesDirectory, fileName);
 
-        try (InputStream in = new BufferedInputStream(new URL(imageUrl).openStream())) {
-            Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING); // 로컬 이미지 디렉토리에 저장
-            Path dailyImagesPath = Path.of(localDailyDirectory, formatToday, "images").resolve(fileName);
-            Files.createDirectories(dailyImagesPath.getParent()); // 필요한 모든 부모 디렉토리를 생성
-            Files.copy(filePath, dailyImagesPath, StandardCopyOption.REPLACE_EXISTING); // 일일 이미지 디렉토리에 복사
-        } catch (Exception e) {
+        // 로컬 이미지 디렉토리에 저장
+        if (!downloadImage(imageUrl, filePath)) {
             return false;
         }
+
+        // 일일 이미지 디렉토리에 복사
+        Path dailyImagesPath = Path.of(localDailyDirectory, formatToday, "images", fileName);
+        try {
+            Files.createDirectories(dailyImagesPath.getParent()); // 필요한 모든 부모 디렉토리를 생성
+            Files.copy(filePath, dailyImagesPath, StandardCopyOption.REPLACE_EXISTING); // 복사
+        } catch (IOException e) {
+            return false;
+        }
+
         return true;
     }
 
-
     // 공통 다운로드 및 복사 로직을 처리하는 메소드
     private boolean downloadAndCopyImageAfterExistenceCheck(String imageUrl, String localImagesDirectory, String localDailyDirectory, String formatToday) {
-        String fileName = imageUrl.split("/")[imageUrl.split("/").length - 1];
-        Path filePath = Path.of(localImagesDirectory, fileName);
+        Path filePath = Path.of(localImagesDirectory, imageUrl.split("/")[imageUrl.split("/").length - 1]);
+
         if (Files.exists(filePath)) {
             return true; // 이미 파일이 존재하므로 다운로드 또는 복사하지 않고 넘어감
         }
-        try (InputStream in = new BufferedInputStream(new URL(imageUrl).openStream())) {
-            Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING); // 로컬 이미지 디렉토리에 저장
 
-            Path dailyImagesPath = Path.of(localDailyDirectory, formatToday, "images", fileName);
-            Files.createDirectories(dailyImagesPath.getParent()); // 필요한 모든 부모 디렉토리를 생성
-            Files.copy(in, dailyImagesPath, StandardCopyOption.REPLACE_EXISTING); // 일일 이미지 디렉토리에 복사
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
+        return downloadAndCopyImage(imageUrl, localImagesDirectory, localDailyDirectory, formatToday);
     }
 
     public boolean imageDownloadCostco(String imageUrl, String formatToday) {

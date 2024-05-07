@@ -496,10 +496,14 @@ public class CrawlService {
             if (!Objects.isNull(url) && !url.isEmpty()
                     && !url.endsWith(".webp")
                     && commonUtil.isNukkiImage(url)
-                    && isMustDownloadThumb ? commonUtil.imageDownloadCostco(url, formatToday) : commonUtil.imageDownloadAfterCheckCostco(url, formatToday)
             ) {
-                thumbUrlList.add(url);
-                thumbFilenameList.add(fileName);
+                if (isMustDownloadThumb
+                        ? commonUtil.imageDownloadCostco(url, formatToday)
+                        : commonUtil.imageDownloadAfterCheckCostco(url, formatToday)
+                ) {
+                    thumbUrlList.add(url);
+                    thumbFilenameList.add(fileName);
+                }
             }
         }
 

@@ -3,6 +3,7 @@ package com.project.crawl.service;
 import com.project.crawl.util.CommonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.net.ftp.FTPReply;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,7 @@ public class FtpService {
     private FTPClient ftp;
     private final CommonUtil commonUtil;
 
+    /*
     public void connectFtp() throws IOException {
         ftp = new FTPClient();
         ftp.connect(ftpAddressCostco, ftpPortNumber);
@@ -76,6 +78,74 @@ public class FtpService {
 
         quitFtp();
     }
+
+     */
+    public void connectFtp() throws IOException {
+        ftp = new FTPClient();
+        try {
+            ftp.connect(ftpAddressCostco, ftpPortNumber);
+            int reply = ftp.getReplyCode();
+            if (!FTPReply.isPositiveCompletion(reply)) {
+                ftp.disconnect();
+                throw new IOException("Exception in connecting to FTP Server");
+            }
+            ftp.login(ftpLoginIdCostco, ftpLoginPwCostco);
+            log.debug("Connected and logged in to FTP server.");
+        } catch (IOException e) {
+            log.error("Could not connect or login to FTP server", e);
+            throw e;
+        }
+    }
+
+    public void quitFtp() throws IOException {
+        try {
+            if (ftp.isConnected()) {
+                ftp.logout();
+                ftp.disconnect();
+                log.debug("Logged out and disconnected from FTP server.");
+            }
+        } catch (IOException e) {
+            log.error("Error while disconnecting from the FTP server", e);
+            throw e;
+        }
+    }
+
+    public void uploadFtp(File file, String ftpPath, String filename) throws IOException {
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            ftp.setFileType(FTP.BINARY_FILE_TYPE);
+            ftp.changeWorkingDirectory(ftpPath);
+            boolean completed = ftp.storeFile(filename, inputStream);
+            if (completed) {
+//                log.debug("Uploaded successfully: {}", filename);
+                System.out.println("Uploaded successfully: " + filename);
+            } else {
+                throw new IOException("Failed to upload file: " + filename);
+            }
+        } catch (IOException e) {
+            log.error("Error uploading file: {}", filename, e);
+            throw e;
+        }
+    }
+
+    public void uploadDirectoryFiles(String localDir, String ftpDir) throws IOException {
+        File directory = new File(localDir);
+        if (!directory.exists()) {
+            log.warn("Directory does not exist: {}", localDir);
+            return;
+        }
+
+        File[] files = directory.listFiles();
+        if (files == null || files.length == 0) {
+            log.info("No files to upload in directory: {}", localDir);
+            return;
+        }
+
+        Set<File> fileSet = commonUtil.getFilteredFileSet(files);
+        for (File file : fileSet) {
+            uploadFtp(file, ftpDir, file.getName());
+        }
+    }
+
 
     public String[][] getPathArray(String formatToday) {
         return new String[][]{
