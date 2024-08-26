@@ -109,7 +109,7 @@ public class FileController {
         }
 
         // 판매 가능 상품 엑셀 만들기
-        List<C24ProductChunk> availableChunks = excelService.divideList(availableList, 799);
+        List<C24ProductChunk> availableChunks = excelService.divideList(availableList, 800);
         for (C24ProductChunk chunk : availableChunks) {
             excelService.generateC24ProductExcels(chunk, formatToday, true, "costco");
         }
@@ -121,7 +121,7 @@ public class FileController {
         //P000BLCZ 백종원의 빽햄 세트 200g x 9개
         //품절되었습니다. 카페 24에서 판매안함 진열안함 처리하였습니다
         // 판매 불가능 상품 엑셀 만들기
-        List<C24ProductChunk> unavailableChunks = excelService.divideList(unavailableList, 799);
+        List<C24ProductChunk> unavailableChunks = excelService.divideList(unavailableList, 800);
         for (C24ProductChunk chunk : unavailableChunks) {
             excelService.generateC24ProductExcels(chunk, formatToday, false, "costco");
         }
@@ -155,7 +155,7 @@ public class FileController {
         }
 
         // 판매 불가능 상품 엑셀 만들기
-        List<C24ProductChunk> unavailableChunks = excelService.divideList(unavailableList, 799);
+        List<C24ProductChunk> unavailableChunks = excelService.divideList(unavailableList, 800);
         for (C24ProductChunk chunk : unavailableChunks) {
             excelService.generateC24ProductExcels(chunk, formatToday, false, "costco");
         }
