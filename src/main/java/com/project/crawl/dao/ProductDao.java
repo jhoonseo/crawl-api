@@ -33,6 +33,7 @@ public class ProductDao {
                         field("min_qty"), field("max_qty"),
                         field("status"), field("updated_date_time"))
                 .from(table("product_costco"))
+                .where(field("status").notEqual(-1))
                 .orderBy(field("product_code").asc())
                 .fetchStreamInto(CostcoProduct.class);
 
@@ -44,6 +45,7 @@ public class ProductDao {
         return context
                 .select(field("product_code"))
                 .from(table("product_costco"))
+                .where(field("status").notEqual(-1))
                 .orderBy(field("product_code").asc())
                 .fetchInto(Integer.class);
     }
@@ -60,7 +62,8 @@ public class ProductDao {
                 .where(
                         field("updated_date_time")
                                 .greaterOrEqual(Timestamp.valueOf(crawlDate.atStartOfDay()))
-                ).and(field("is_option").eq(0))
+                ).and(field("is_option").eq(0)
+                ).and(field("status").notEqual(-1))
                 .fetchInto(CostcoProduct.class);
     }
 
@@ -76,7 +79,8 @@ public class ProductDao {
                 .from(table("product_costco"))
                 .where(
                         field("product_code").eq(productCode)
-                ).fetchOneInto(CostcoProduct.class);
+                ).and(field("status").notEqual(-1))
+                .fetchOneInto(CostcoProduct.class);
     }
 
     public Integer getCostcoProductIdxByProductCode(Integer productCode) {
@@ -85,7 +89,8 @@ public class ProductDao {
                 .from(table("product_costco"))
                 .where(
                         field("product_code").eq(productCode)
-                ).fetchOneInto(Integer.class);
+                ).and(field("status").notEqual(-1))
+                .fetchOneInto(Integer.class);
     }
 
     public List<String> getDailyDetailItemMainImages1688(String startDate) {
@@ -217,6 +222,7 @@ public class ProductDao {
                 .set(field("status"), costcoProduct.getStatus())
                 .set(field("updated_date_time"), costcoProduct.getUpdatedDateTime())
                 .where(field("product_code").eq(costcoProduct.getProductCode()))
+                .and(field("status").notEqual(-1))
                 .execute();
     }
 
@@ -224,6 +230,7 @@ public class ProductDao {
         context.update(table("product_costco"))
                 .set(field("status"), status)
                 .where(field("product_code").in(costcoProductCodeSet))
+                .and(field("status").notEqual(-1))
                 .execute();
     }
 
@@ -231,6 +238,7 @@ public class ProductDao {
         context.update(table("product_costco"))
                 .set(field("status"), status)
                 .where(field("product_code").eq(productCode))
+                .and(field("status").notEqual(-1))
                 .execute();
     }
 

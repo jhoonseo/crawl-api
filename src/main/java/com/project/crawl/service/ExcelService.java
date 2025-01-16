@@ -27,6 +27,31 @@ public class ExcelService {
 
     private final CommonUtil commonUtil;
 
+    private static final String COMMON_DELIVERY_INFO = "" +
+            "<div class=\"delivery-info\">\n" +
+            "  <ul class=\"bullet_point\">\n" +
+            "    <li>결제일 기준 익일(영업일 기준)부터 3일 이내 발송됩니다. (주말/공휴일 제외)</li>\n" +
+            "    <li>산간·도서 지역(제주도 포함)은 배송 기간이 추가 소요될 수 있습니다.</li>\n" +
+            "    <li>주문하신 상품은 재고 사정에 따라 품절될 수 있으며, 품절 발생 시 빠른 시일 내 안내해 드리겠습니다.</li>\n" +
+            "    <li>엘리베이터 이용이 불가능한 2층 이상 건물이거나 이동 경로가 협소한 경우, 사다리차를 이용해야 하며 비용은 고객 부담입니다.</li>\n" +
+            "  </ul>\n" +
+            "</div>";
+
+    private static final String COMMON_REFUND_INFO = "" +
+            "<div class=\"refund-info\">\n" +
+            "  <ul class=\"bullet_point\">\n" +
+            "    <li>반품 또는 교환이 필요하신 경우, 고객센터(010-5889-6351)로 연락해 주시면 자세한 안내 및 접수를 도와드립니다.</li>\n" +
+            "    <li>전자제품(예: TV, 컴퓨터, 태블릿 PC, 카메라, 프로젝터, 휴대폰, 스마트워치, 무선 이어폰 등)이나 대형 가전(냉장고, 냉동고, 세탁기, 건조기, 에어컨 등)은 구매(또는 배송 완료) 후 90일 이내에만 반품이 가능합니다.</li>\n" +
+            "    <li>반품 완료 후 환불까지 약 3~6영업일이 소요되며, 환불 처리 시 전자상거래 등에서의 소비자 보호에 관한 법률 제18조에 따라 조치합니다.</li>\n" +
+            "  </ul>\n" +
+            "</div>";
+
+    private static final String DEFAULT_BOTTOM_NOTICE = "" +
+            "<div class=\"kc-notice\">이 제품은 구매대행으로 유통되는 제품임.<br>"
+            + "이 제품은 전기용품 및 생활용품 안전관리법에 따른 대상임.<br>"
+            + "상품 특성상 주문진행 상황이 [배송 준비 중] 상태로 변경되면 취소가 어렵거나 불가능한 경우가 있사오니, "
+            + "이 점 참고하시어 구매 부탁드립니다.</div>";
+
     public void closeWorkbook(Workbook workbook) {
         try {
             workbook.close();
@@ -59,7 +84,6 @@ public class ExcelService {
             setC24ProductHeader(sheet);
 
             String availability = isAvailable ? "Y" : "N";
-            String defaultBottomNotice = "<div class=\"kc-notice\">이 제품은 구매대행으로 유통되는 제품임.<br>이 제품은 전기용품 및 생활용품 안전관리법에 따른 대상임.<br>상품 특성상 주문진행 상황이 [배송 준비 중] 상태로 변경되면 취소가 어렵거나 불가능한 경우가 있사오니, 이 점 참고하시어 구매 부탁드립니다.</div>";
             String defaultManufacturerCode = "M0000000";
             String defaultSupplierCode = "S0000000";
             String defaultBrandCode = "B0000000";
@@ -113,9 +137,11 @@ public class ExcelService {
                         c24CostcoProductXlsx.getThumbDetail(),
                         c24CostcoProductXlsx.getDescriptionDetail(),
                         c24CostcoProductXlsx.getSpecInfoTable(),
-                        c24CostcoProductXlsx.getDeliveryInfo(),
-                        c24CostcoProductXlsx.getRefundInfo(),
-                        defaultBottomNotice);
+                        COMMON_DELIVERY_INFO,  // DB에서 가져온 deliveryInfo 대신, 공통 상수 사용
+                        COMMON_REFUND_INFO,    // DB에서 가져온 refundInfo 대신, 공통 상수 사용
+                        DEFAULT_BOTTOM_NOTICE
+                );
+
                 dataRow.createCell(14).setCellValue("<p align=\"center\">" + detail + "</p>");
                 // 모바일 상품 상세설명 설정 15
                 dataRow.createCell(15).setCellValue("A");

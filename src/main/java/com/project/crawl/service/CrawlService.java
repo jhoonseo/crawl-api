@@ -210,7 +210,6 @@ public class CrawlService {
     }
 
     public void crawlProductCostco(WebDriver driver, WebDriverWait webDriverWait, C24Product c24Product, String formatToday, boolean isMustDownloadThumb) throws IOException {
-        log.debug(c24Product.getProductUrlCostco()); // TODO remove after test
         driver.get(c24Product.getProductUrlCostco());
 
         // 로딩 대기를 위해 5초 중단
